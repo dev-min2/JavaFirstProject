@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <beans>
-	<bean id="TestA" class="com.mink.bookManagementServer.TestA"></bean>
+	<!--<bean id="TestA" class="com.mink.bookManagementServer.TestA"></bean>  -->
+	<!-- member -->
+	<bean id="memberDAO" class="com.minkyo.bookManagementServer.dao.MemberDAOImpl" />
+	<bean id="memberService" class="com.minkyo.bookManagementServer.service.MemberServiceImpl">
+		<constructor-arg ref="memberDAO" />
+	</bean>
+	<bean id="memberController" class="com.minkyo.bookManagementServer.controller.MemberController">
+		<constructor-arg ref="memberService" />
+	</bean>
 </beans>
