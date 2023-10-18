@@ -1,4 +1,4 @@
-package com.mink.bookManagementServer;
+package com.minkyo.bookManagementServer;
 
 import SockNet.NetServer;
 

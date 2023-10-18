@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.mink</groupId>
+  <groupId>com.minkyo</groupId>
   <artifactId>bookManagementClient</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
@@ -25,10 +25,16 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
     </dependency>
+    
+    <dependency>
+        <groupId>com.mink</groupId>
+        <artifactId>javaSvr</artifactId>
+        <version>1.0</version>
+    </dependency>
+    
   </dependencies>
 
   <build>
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -58,6 +64,33 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
+          <configuration>
+				<archive>
+					<manifest>
+						<mainClass>com.minkyo.bookManagementClient.App</mainClass>
+                    </manifest>
+                </archive>
+          </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>3.2.4</version> <!-- 사용 중인 버전으로 변경할 수 있음 -->
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>com.minkyo.bookManagementClient.App</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
@@ -68,7 +101,6 @@
           <version>2.8.2</version>
         </plugin>
       </plugins>
-    </pluginManagement>
   </build>
 
   <reporting>

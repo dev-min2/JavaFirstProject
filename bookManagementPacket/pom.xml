@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.minkyo</groupId>
-  <artifactId>bookManagementServer</artifactId>
+  <artifactId>bookManagementPacket</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
-  <name>bookManagementServer</name>
-  <description>A simple bookManagementServer.</description>
+  <name>bookManagementPacket</name>
+  <description>A simple bookManagementPacket.</description>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
@@ -17,10 +17,8 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
-    <project.lib.path>C:/Javaserver</project.lib.path>
-    <project.build.directory>${project.basedir}/target</project.build.directory>
   </properties>
- 
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -33,18 +31,10 @@
         <artifactId>javaSvr</artifactId>
         <version>1.0</version>
     </dependency>
-    
-    <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8 -->
-	<dependency>
-	    <groupId>com.oracle.database.jdbc</groupId>
-    	<artifactId>ojdbc8</artifactId>
-    	<version>19.13.0.0.1</version>
-	</dependency>
-
-    
   </dependencies>
 
   <build>
+    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
         <plugin>
           <artifactId>maven-clean-plugin</artifactId>
@@ -74,12 +64,12 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.0.2</version>
-           <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>com.minkyo.bookManagementServer.App</mainClass>
-                        </manifest>
-                    </archive>
+          <configuration>
+				<archive>
+					<manifest>
+						<mainClass>com.minkyo.bookManagementPacket.App</mainClass>
+                    </manifest>
+                </archive>
           </configuration>
         </plugin>
         <plugin>
@@ -95,7 +85,7 @@
                     <configuration>
                         <transformers>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>com.minkyo.bookManagementServer.App</mainClass>
+                                <mainClass>com.minkyo.bookManagementPacket.App</mainClass>
                             </transformer>
                         </transformers>
                     </configuration>
@@ -111,6 +101,7 @@
           <version>2.8.2</version>
         </plugin>
       </plugins>
+    </pluginManagement>
   </build>
 
   <reporting>

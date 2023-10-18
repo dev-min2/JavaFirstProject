@@ -1,4 +1,4 @@
-package com.mink.bookManagementClient;
+package com.minkyo.bookManagementPacket;
 
 /**
  * Hello world!
