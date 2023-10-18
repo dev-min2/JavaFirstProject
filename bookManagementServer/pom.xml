@@ -29,8 +29,8 @@
     </dependency>
     
     <dependency>
-        <groupId>com.minkSvr</groupId>
-        <artifactId>serverFrame</artifactId>
+        <groupId>com.mink</groupId>
+        <artifactId>javaSvr</artifactId>
         <version>1.0</version>
     </dependency>
     
