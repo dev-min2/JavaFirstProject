@@ -3,6 +3,7 @@ package com.minkyo.bookManagementServer.dao;
 import java.sql.Date;
 
 public class MemberVO {
+	private long userUID;
 	private String userID;
 	private String userPassword;
 	private String userEmail;
@@ -10,6 +11,12 @@ public class MemberVO {
 	private boolean admin;
 	private Date createDate;
 
+	public long getUserUID() {
+		return userUID;
+	}
+	public void setUserUID(long userUID) {
+		this.userUID = userUID;
+	}
 	public String getUserID() {
 		return userID;
 	}

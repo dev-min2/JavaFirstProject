@@ -27,19 +27,20 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
     </dependency>
-    
-    <dependency>
-        <groupId>com.mink</groupId>
-        <artifactId>javaSvr</artifactId>
-        <version>1.0</version>
-    </dependency>
-    
+      
     <dependency>
         <groupId>com.minkyo</groupId>
         <artifactId>packet</artifactId>
         <version>1.0</version>
     </dependency>
     
+    
+    <dependency>
+        <groupId>com.mink</groupId>
+        <artifactId>javaSvr</artifactId>
+        <version>1.0</version>
+    </dependency>
+   
     <!-- https://mvnrepository.com/artifact/com.oracle.database.jdbc/ojdbc8 -->
 	<dependency>
 	    <groupId>com.oracle.database.jdbc</groupId>

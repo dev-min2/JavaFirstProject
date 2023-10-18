@@ -25,9 +25,8 @@ public class MemberController {
 		CREATE_USER_ACK ackPacket = new CREATE_USER_ACK();
 		
 		memberService.createUser(reqPacket);
-		
-		
 		ackPacket.error = NetError.NET_OK;
+		
 		return ackPacket;
 	}
 	

@@ -2,6 +2,7 @@ package com.minkyo.bookManagementServer.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import CommonUtils.DBConnectionPool;
 
@@ -13,31 +14,48 @@ public class MemberDAOImpl implements MemberDAO {
 		boolean ret = true;
 		
 		Connection conn = DBConnectionPool.getInstance().getPoolConnection();
-		String sql = "INSERT INTO MEMBER VALUES(?,?,?,?,?,?)";
+		String sql = "INSERT INTO MEMBER VALUES(?,?,?,?,?,?,?)";
 		try {
 			conn.setAutoCommit(false);
 			pstmt = conn.prepareStatement(sql);
 			
-			pstmt.setString(1, vo.getUserID());
-			pstmt.setString(2, vo.getUserPassword());
-			pstmt.setString(3, vo.getUserEmail());
-			pstmt.setString(4, vo.getNickName());
-			pstmt.setBoolean(5, vo.isAdmin());
-			pstmt.setDate(6, vo.getCreateDate());
+			int nextVal = 0;
+			String sequence = "SELECT BOOKMANAGEMENT.MEMBER_SEQ.NEXTVAL FROM DUAL";
+			PreparedStatement ps = conn.prepareStatement(sequence);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				nextVal = rs.getInt(1);
+			}
 			
-			int b = pstmt.executeUpdate();
+			pstmt.setLong(1, nextVal);
+			pstmt.setString(2, vo.getUserID());
+			pstmt.setString(3, vo.getUserPassword());
+			pstmt.setString(4, vo.getUserEmail());
+			pstmt.setString(5, vo.getNickName());
+			pstmt.setBoolean(6, vo.isAdmin());
+			pstmt.setDate(7, vo.getCreateDate());
+			
+			pstmt.executeUpdate();
 			
 			conn.commit();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			if(conn != null) {
+				try {
+					conn.rollback();
+				}
+				catch(Exception e2) {
+					e2.printStackTrace();
+				}
+			}
 			ret = false;
 		}
 		finally {
-			
+			close(conn);
 		}
 		
-		return true;
+		return ret;
 	}
 	
 	public void close(Connection conn) {

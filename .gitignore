@@ -14,7 +14,6 @@ local.properties
 .loadpath
 .recommenders
 .target/
-bookManagementServer/resources/staticFiles/server.xml
 
 # ignore properties file
 config.properties
