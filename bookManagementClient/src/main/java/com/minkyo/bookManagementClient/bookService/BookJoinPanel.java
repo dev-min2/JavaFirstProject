@@ -17,6 +17,15 @@ import javax.swing.JTextField;
 import com.minkyo.bookManagementClient.bookMain.BookManagementMainFrame;
 import com.minkyo.bookManagementClient.bookMain.BookPanelType;
 import com.minkyo.bookManagementClient.bookMain.Util;
+import com.minkyo.bookManagementPacket.NetError;
+import com.minkyo.bookManagementPacket.Member.CREATE_USER_ACK;
+import com.minkyo.bookManagementPacket.Member.CREATE_USER_REQ;
+import com.minkyo.bookManagementPacket.Member.DUPLICATE_ID_CHECK_ACK;
+import com.minkyo.bookManagementPacket.Member.DUPLICATE_ID_CHECK_REQ;
+
+import PacketUtils.Packet;
+import PacketUtils.PacketUtil;
+import SockNet.NetClient;
 
 public class BookJoinPanel extends JPanel {
 	private BookPanelType pnType;
@@ -89,7 +98,15 @@ public class BookJoinPanel extends JPanel {
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		g.drawImage(BookManagementMainFrame.shareDefaultBackgroundImage,0,0, null);
+		g.drawImage(BookManagementMainFrame.colorBackgroundImage,0,0, null);
+	}
+	
+	private void resetTextField() {
+		idTextField.setText("");
+		passwordTextField.setText("");
+		passwordVerifyTextField.setText("");
+		emailTextField.setText("");
+		nickNameTextField.setText("");
 	}
 	
 	private void setButtonListener() {
@@ -98,30 +115,77 @@ public class BookJoinPanel extends JPanel {
 			String pwdText = passwordTextField.getText();
 			String pwdVerifyText = passwordVerifyTextField.getText();
 			String emailText = emailTextField.getText();
-			if(Util.isBlank(idText) || Util.isBlank(pwdText) || Util.isBlank(pwdVerifyText) || Util.isBlank(emailText))
-			{
+			String nickName = nickNameTextField.getText();
+			if(Util.isBlank(idText) || Util.isBlank(pwdText) || Util.isBlank(pwdVerifyText) || Util.isBlank(emailText) || Util.isBlank(nickName)) {
 				Util.ErrDialog(this, "공란 확인해주세요.",JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			
-			if(!pwdText.equals(pwdVerifyText))
-			{
+			if(!pwdText.equals(pwdVerifyText)) {
 				Util.ErrDialog(this, "비밀번호 검증 확인해주세요.",JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			
+			String encryptPwd = Util.Encrpyt(pwdVerifyText);
+			
+			CREATE_USER_REQ req = new CREATE_USER_REQ();
+			req.userID = idText;
+			req.userPassword = encryptPwd;
+			req.userEmail = emailText;
+			req.nickName = nickName;
+			
+			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+			try {
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				
+				CREATE_USER_ACK recvPacket = (CREATE_USER_ACK)net.recv();
+				if(recvPacket.error == NetError.NET_FAIL) {
+					Util.ErrDialog(BookManagementMainFrame.getInstance(), "회원가입 실패", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					Util.ErrDialog(BookManagementMainFrame.getInstance(), "회원가입 성공", JOptionPane.INFORMATION_MESSAGE);
+					resetTextField();
+					BookManagementMainFrame.getInstance().changePanel(BookPanelType.LoginPanel);
+				}
+			}
+			catch(Exception e2) {
+				e2.printStackTrace();
 				return;
 			}
 		};
 		
 		ActionListener duplicateBtn_action = (ActionEvent e) -> {
-			if(Util.isBlank(idTextField.getText()))
-			{
+			if(Util.isBlank(idTextField.getText())) {
 				Util.ErrDialog(this, "아이디 다시 입력해주세요.", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			
+			DUPLICATE_ID_CHECK_REQ req = new DUPLICATE_ID_CHECK_REQ();
+			req.id = idTextField.getText();
+			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+			try {
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				
+				DUPLICATE_ID_CHECK_ACK recvPacket = (DUPLICATE_ID_CHECK_ACK)net.recv();
+				if(recvPacket.isDuplicateID) {
+					Util.ErrDialog(BookManagementMainFrame.getInstance(), "아이디 중복입니다.", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					Util.ErrDialog(BookManagementMainFrame.getInstance(), "아이디 사용가능.", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+			catch(Exception e2) {
+				e2.printStackTrace();
 				return;
 			}
 		};
 		
 		ActionListener prevBtn_action = (ActionEvent e) -> {
 			Util.resetTextField(idTextField,passwordTextField,passwordVerifyTextField, emailTextField, nickNameTextField);
-		
+					
+			resetTextField();
 			BookManagementMainFrame.getInstance().changePanel(BookPanelType.LoginPanel);
 		};
 		

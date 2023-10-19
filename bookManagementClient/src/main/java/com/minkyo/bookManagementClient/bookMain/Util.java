@@ -37,7 +37,7 @@ public class Util {
 		Image image = null;
 
 		// 테스트환경은 하드코딩
-		String imagePath = "C:\\javaFirstPrj\\bookManagementClient\\src\\main\\resources\\";
+		String imagePath = "C:\\javabookProject\\JavaFirstProject\\bookManagementClient\\src\\main\\resources\\";
 		imagePath += fileName;
 		try {
 			java.io.File file = new java.io.File(imagePath);

@@ -23,6 +23,12 @@ public class MemberServiceImpl implements MemberService {
 		// TODO Auto-generated method stub
 		boolean ret = false;
 		
+		if(packet.userID == null || packet.userID.isBlank())
+			return ret;
+		
+		if(packet.userPassword == null || packet.userPassword.isBlank())
+			return ret;
+		
 		MemberVO newVO = new MemberVO(); 
 		newVO.setMemberID(packet.userID);
 		newVO.setMemberPassword(packet.userPassword);
@@ -39,6 +45,12 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public MemberVO loginUser(LOGIN_USER_REQ packet) {
 		// TODO Auto-generated method stub
+		if(packet.userID == null || packet.userID.isBlank())
+			return null;
+		
+		if(packet.userPassword == null || packet.userPassword.isBlank())
+			return null;
+		
 		MemberVO loginVO = new MemberVO();
 		loginVO.setMemberID(packet.userID);
 		loginVO.setMemberPassword(packet.userPassword);
@@ -49,7 +61,13 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public boolean checkDuplicateID(DUPLICATE_ID_CHECK_REQ packet) {
 		// TODO Auto-generated method stub
-		return false;
+		if(packet.id == null || packet.id.isBlank())
+			return false;
+		
+		MemberVO idDuplicateCheck = new MemberVO();
+		idDuplicateCheck.setMemberID(packet.id);
+		
+		return dao.checkDuplicateID(idDuplicateCheck);
 	}
 
 }

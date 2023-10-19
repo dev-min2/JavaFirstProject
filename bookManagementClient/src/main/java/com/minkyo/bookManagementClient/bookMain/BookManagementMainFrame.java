@@ -36,30 +36,21 @@ public class BookManagementMainFrame extends JFrame {
 		return inst;
 	}
 	
+	public NetClient getNetClient() {
+		return net;
+	}
+	
 	public void init() {
-//		try {
-//			// 연결한 IP(도메인주소)와 Port번호를 입력.
-//			net.startToConnect("localhost", 9999);
-//		}
-//		catch(Exception e) {
-//			String error = "네트워크 연결에 실패했습니다." + e.getMessage();
-//			Util.ErrDialog(inst, error, JOptionPane.ERROR_MESSAGE );
-//			return;
-//		}
-//		
-//		CREATE_USER_REQ req = new CREATE_USER_REQ();
-//		req.userID = "킹민교";
-//		req.userPassword = "1234";
-//		req.userEmail = "c11286@navre";
-//		req.nickName = "mmm";
-//				
-//		try {
-//			Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
-//			net.send(packet);
-//		}
-//		catch(Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			// 연결한 IP(도메인주소)와 Port번호를 입력.
+			net.startToConnect("localhost", 9999);
+		}
+		catch(Exception e) {
+			String error = "네트워크 연결에 실패했습니다." + e.getMessage();
+			Util.ErrDialog(inst, error, JOptionPane.ERROR_MESSAGE );
+			return;
+		}
+		
 		
 		shareDefaultBackgroundImage = Util.resize(
 				new ImageIcon(Util.getImageFile("rabbitBackgroundImg.jpg")), 

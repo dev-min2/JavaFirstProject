@@ -40,6 +40,7 @@ public class MemberDAOImpl implements MemberDAO {
 			pstmt.executeUpdate();
 			
 			conn.commit();
+			rs.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -85,6 +86,7 @@ public class MemberDAOImpl implements MemberDAO {
 				retVO.setAdmin(rs.getBoolean(6));
 				retVO.setMemberCreateDate(rs.getDate(7));;
 			}
+			rs.close();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -94,6 +96,35 @@ public class MemberDAOImpl implements MemberDAO {
 		}
 		
 		return retVO;
+	}
+
+	@Override
+	public boolean checkDuplicateID(MemberVO vo) {
+		// TODO Auto-generated method stub
+		boolean ret = false;
+		
+		Connection conn = DBConnectionPool.getInstance().getPoolConnection();
+		String sql = "SELECT * FROM MEMBER WHERE MEMBER_ID = ?";
+		ResultSet rs;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, vo.getMemberID());
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				ret = true;
+			}
+			rs.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			close(conn);
+		}
+		
+		return ret;
 	}
 	
 	private void close(Connection conn) {

@@ -16,16 +16,16 @@ public class NetThread extends Thread {
 			}
 		};
 	}
-	
-	public void processRecv() {
-		List<Packet> packets = null;
-		try {
-			packets = net.recv();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	
+//	public void processRecv() {
+//		List<Packet> packets = null;
+//		try {
+//			packets = net.recv();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 	
 	
 }

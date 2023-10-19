@@ -1,8 +1,9 @@
 package com.minkyo.bookManagementPacket.Member;
 
+import java.io.Serializable;
 import java.sql.Date;
 
-public class MemberVO {
+public class MemberVO implements Serializable {
 	private long memberUID;
 	private String memberID;
 	private String memberPassword;

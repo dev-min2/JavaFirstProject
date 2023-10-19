@@ -5,7 +5,12 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.util.zip.Deflater;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -16,6 +21,15 @@ import javax.swing.JTextField;
 import com.minkyo.bookManagementClient.bookMain.BookManagementMainFrame;
 import com.minkyo.bookManagementClient.bookMain.BookPanelType;
 import com.minkyo.bookManagementClient.bookMain.Util;
+import com.minkyo.bookManagementPacket.NetError;
+import com.minkyo.bookManagementPacket.Member.ImagePACKET_TEST;
+import com.minkyo.bookManagementPacket.Member.LOGIN_USER_ACK;
+import com.minkyo.bookManagementPacket.Member.LOGIN_USER_REQ;
+
+import CommonUtils.Utils;
+import PacketUtils.Packet;
+import PacketUtils.PacketUtil;
+import SockNet.NetClient;
 
 
 public class BookLoginPanel extends JPanel {
@@ -62,7 +76,7 @@ public class BookLoginPanel extends JPanel {
 	
 	@Override
 	public void paintComponent(Graphics g) {
-		g.drawImage(BookManagementMainFrame.shareDefaultBackgroundImage,0,0, null);
+		g.drawImage(BookManagementMainFrame.colorBackgroundImage,0,0, null);
 	}
 	
 	private void setButtonListener() {
@@ -76,8 +90,42 @@ public class BookLoginPanel extends JPanel {
 				return;
 			}
 			
-			// 로그인 가능한지 패킷 송신
-			BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
+			NetClient net = null;
+			try {
+				LOGIN_USER_REQ req = new LOGIN_USER_REQ();
+				req.userID = idTextField.getText();
+				req.userPassword = Util.Encrpyt(passwordTextField.getText());
+				
+				net = BookManagementMainFrame.getInstance().getNetClient();
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				
+				LOGIN_USER_ACK recvPacket = (LOGIN_USER_ACK)net.recv();
+				if(recvPacket.netError != NetError.NET_OK) {
+					Util.ErrDialog(this, "아이디 혹은 비밀번호 다시입력.", JOptionPane.ERROR_MESSAGE);
+				}
+				else {
+					BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
+				}
+				
+//				ImagePACKET_TEST req2 = new ImagePACKET_TEST();
+//				
+//				BufferedImage bfImage = ImageIO.read(new File("C:\\javabookProject\\JavaFirstProject\\bookManagementClient\\src\\main\\resources\\혼자공부하는자바.jpg"));
+//				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//		        ImageIO.write(bfImage, "jpg", byteArrayOutputStream);
+//		        
+//		        byte[] compressedData = Utils.compress(byteArrayOutputStream.toByteArray(), Deflater.BEST_COMPRESSION, false);
+//		        
+//		        req2.imageBuffer = compressedData;
+//				
+//				Packet packet2 = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(2, req2));
+//				net.send(packet2);
+//				
+			}
+			catch(Exception e2) {
+				e2.printStackTrace();
+				return;
+			}
 		};
 		
 		ActionListener signupBtn_action = (ActionEvent e) -> {
