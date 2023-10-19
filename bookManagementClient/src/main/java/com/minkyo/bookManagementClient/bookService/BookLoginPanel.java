@@ -21,7 +21,7 @@ import com.minkyo.bookManagementClient.bookMain.Util;
 public class BookLoginPanel extends JPanel {
 	private JButton loginBtn = new JButton("로그인");
 	private JButton joinBtn = new JButton("회원가입");
-	private JLabel titleLabel = new JLabel("도서관리  프로그램");
+	private JLabel titleLabel = new JLabel("예담 도서관리 프로그램");
 	private JLabel idLabel = new JLabel("아이디");
 	private JLabel pwLabel = new JLabel("패스워드");
 	private JTextField idTextField = new JTextField(20);
@@ -35,11 +35,10 @@ public class BookLoginPanel extends JPanel {
 		this.setSize(new Dimension(BookManagementMainFrame.SCREEN_WIDTH,BookManagementMainFrame.SCREEN_HEIGHT));
 		this.setLayout(null);
 		
-		
 		loginBtn.setBounds(320,530, 130, 80);
 		joinBtn.setBounds(600,530, 130, 80);
 		
-		titleLabel.setBounds(270,60,600,100);
+		titleLabel.setBounds(200,60,800,100);
 		titleLabel.setFont(new Font("Serif", Font.PLAIN, 60));
 		
 		idLabel.setBounds(300, 260, 200, 50);
@@ -78,6 +77,7 @@ public class BookLoginPanel extends JPanel {
 			}
 			
 			// 로그인 가능한지 패킷 송신
+			BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
 		};
 		
 		ActionListener signupBtn_action = (ActionEvent e) -> {

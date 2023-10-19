@@ -3,7 +3,7 @@
 <Resources>
 	<Resource name="jdbc"
 	driver="oracle.jdbc.driver.OracleDriver"
-	url="jdbc:oracle:thin:@localhost:1521:xe"
+	url="jdbc:oracle:thin:@min.ddnsking.com:1521:xe"
 	userId="bookManagement"
 	userPwd="1234"
 	poolSize="10"

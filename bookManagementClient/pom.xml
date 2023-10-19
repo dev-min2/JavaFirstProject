@@ -6,7 +6,7 @@
 
   <groupId>com.minkyo</groupId>
   <artifactId>bookManagementClient</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
 
   <name>bookManagementClient</name>
   <description>A simple bookManagementClient.</description>
@@ -25,7 +25,6 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
     </dependency>
-    
     <dependency>
         <groupId>com.mink</groupId>
         <artifactId>javaSvr</artifactId>
@@ -34,7 +33,7 @@
         
     <dependency>
         <groupId>com.minkyo</groupId>
-        <artifactId>packet</artifactId>
+        <artifactId>bookManagementPacket</artifactId>
         <version>1.0</version>
     </dependency>
     

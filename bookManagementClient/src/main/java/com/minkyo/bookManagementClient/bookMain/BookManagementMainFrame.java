@@ -1,5 +1,6 @@
 package com.minkyo.bookManagementClient.bookMain;
 
+import java.awt.Color;
 import java.awt.Image;
 import java.util.HashMap;
 
@@ -13,16 +14,14 @@ import com.minkyo.bookManagementClient.bookService.BookListPanel;
 import com.minkyo.bookManagementClient.bookService.BookLoginPanel;
 import com.minkyo.bookManagementClient.bookService.BookMainPanel;
 import com.minkyo.bookManagementClient.bookService.BookRequestBoardPanel;
-import com.minkyo.bookManagementPacket.Member.CREATE_USER_REQ;
 
-import PacketUtils.Packet;
-import PacketUtils.PacketUtil;
 import SockNet.NetClient;
 
 public class BookManagementMainFrame extends JFrame {
 	public static final int SCREEN_WIDTH = 1024;
 	public static final int SCREEN_HEIGHT = 768;
 	public static Image shareDefaultBackgroundImage = null;
+	public static Image colorBackgroundImage = null;
 	
 	private static BookManagementMainFrame inst = null;
 	private NetClient net = new NetClient();
@@ -38,32 +37,38 @@ public class BookManagementMainFrame extends JFrame {
 	}
 	
 	public void init() {
-		try {
-			// 연결한 IP(도메인주소)와 Port번호를 입력.
-			net.startToConnect("localhost", 9999);
-		}
-		catch(Exception e) {
-			String error = "네트워크 연결에 실패했습니다." + e.getMessage();
-			Util.ErrDialog(inst, error, JOptionPane.ERROR_MESSAGE );
-			return;
-		}
-		
-		CREATE_USER_REQ req = new CREATE_USER_REQ();
-		req.userID = "민교";
-		req.userPassword = "1234";
-		req.userEmail = "c11286@navre";
-		req.nickName = "mmm";
-				
-		try {
-			Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
-			net.send(packet);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			// 연결한 IP(도메인주소)와 Port번호를 입력.
+//			net.startToConnect("localhost", 9999);
+//		}
+//		catch(Exception e) {
+//			String error = "네트워크 연결에 실패했습니다." + e.getMessage();
+//			Util.ErrDialog(inst, error, JOptionPane.ERROR_MESSAGE );
+//			return;
+//		}
+//		
+//		CREATE_USER_REQ req = new CREATE_USER_REQ();
+//		req.userID = "킹민교";
+//		req.userPassword = "1234";
+//		req.userEmail = "c11286@navre";
+//		req.nickName = "mmm";
+//				
+//		try {
+//			Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+//			net.send(packet);
+//		}
+//		catch(Exception e) {
+//			e.printStackTrace();
+//		}
 		
 		shareDefaultBackgroundImage = Util.resize(
 				new ImageIcon(Util.getImageFile("rabbitBackgroundImg.jpg")), 
+				BookManagementMainFrame.SCREEN_WIDTH,
+				BookManagementMainFrame.SCREEN_HEIGHT
+		).getImage();
+		
+		colorBackgroundImage = Util.resize(
+				new ImageIcon(Util.getImageFile("defaultBackgroundColor.jpg")), 
 				BookManagementMainFrame.SCREEN_WIDTH,
 				BookManagementMainFrame.SCREEN_HEIGHT
 		).getImage();

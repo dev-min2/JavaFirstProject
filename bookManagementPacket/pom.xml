@@ -6,7 +6,7 @@
 
   <groupId>com.minkyo</groupId>
   <artifactId>bookManagementPacket</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
 
   <name>bookManagementPacket</name>
   <description>A simple bookManagementPacket.</description>
@@ -25,12 +25,12 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
     </dependency>
-    
-    <dependency>
+        <dependency>
         <groupId>com.mink</groupId>
         <artifactId>javaSvr</artifactId>
         <version>1.0</version>
     </dependency>
+    
   </dependencies>
 
   <build>

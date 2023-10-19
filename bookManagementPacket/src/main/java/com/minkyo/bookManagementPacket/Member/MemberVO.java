@@ -1,4 +1,4 @@
-package com.minkyo.bookManagementServer.dao;
+package com.minkyo.bookManagementPacket.Member;
 
 import java.sql.Date;
 

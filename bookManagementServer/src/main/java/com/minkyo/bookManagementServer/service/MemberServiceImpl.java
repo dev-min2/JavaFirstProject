@@ -4,9 +4,9 @@ package com.minkyo.bookManagementServer.service;
 import java.sql.Date;
 
 import com.minkyo.bookManagementPacket.Member.CREATE_USER_REQ;
+import com.minkyo.bookManagementPacket.Member.MemberVO;
 import com.minkyo.bookManagementServer.dao.MemberDAO;
 import com.minkyo.bookManagementServer.dao.MemberDAOImpl;
-import com.minkyo.bookManagementServer.dao.MemberVO;
 
 public class MemberServiceImpl implements MemberService {
 

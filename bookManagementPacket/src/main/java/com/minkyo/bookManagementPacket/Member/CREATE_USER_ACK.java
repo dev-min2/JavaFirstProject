@@ -9,6 +9,7 @@ import PacketUtils.Packet;
 
 @AckInfo("1")
 public class CREATE_USER_ACK extends Packet implements Serializable {
+	private static final long serialVersionUID = 1L;
 	public NetError error;
 }
 

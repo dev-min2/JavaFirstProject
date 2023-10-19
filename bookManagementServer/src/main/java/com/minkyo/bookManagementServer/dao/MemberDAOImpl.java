@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import com.minkyo.bookManagementPacket.Member.MemberVO;
+
 import CommonUtils.DBConnectionPool;
 
 public class MemberDAOImpl implements MemberDAO {
