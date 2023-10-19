@@ -30,12 +30,12 @@ public class MemberDAOImpl implements MemberDAO {
 			}
 			
 			pstmt.setLong(1, nextVal);
-			pstmt.setString(2, vo.getUserID());
-			pstmt.setString(3, vo.getUserPassword());
-			pstmt.setString(4, vo.getUserEmail());
-			pstmt.setString(5, vo.getNickName());
+			pstmt.setString(2, vo.getMemberID());
+			pstmt.setString(3, vo.getMemberPassword());
+			pstmt.setString(4, vo.getMemberEmail());
+			pstmt.setString(5, vo.getMemberNickName());
 			pstmt.setBoolean(6, vo.isAdmin());
-			pstmt.setDate(7, vo.getCreateDate());
+			pstmt.setDate(7, vo.getMemberCreateDate());
 			
 			pstmt.executeUpdate();
 			
@@ -59,8 +59,44 @@ public class MemberDAOImpl implements MemberDAO {
 		
 		return ret;
 	}
+
+	@Override
+	public MemberVO loginUser(MemberVO vo) {
+		// TODO Auto-generated method stub
+		MemberVO retVO = null;
+		
+		Connection conn = DBConnectionPool.getInstance().getPoolConnection();
+		String sql = "SELECT * FROM MEMBER WHERE MEMBER_ID = ? AND MEMBER_PASSWORD = ?";
+		ResultSet rs;
+		try {
+			pstmt = conn.prepareStatement(sql);
+			
+			pstmt.setString(1, vo.getMemberID());
+			pstmt.setString(2, vo.getMemberPassword());
+			
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				retVO = new MemberVO();
+				retVO.setMemberUID(rs.getInt(1));
+				retVO.setMemberID(rs.getString(2));
+				retVO.setMemberPassword(rs.getString(3));
+				retVO.setMemberEmail(rs.getString(4));
+				retVO.setMemberNickName(rs.getString(5));
+				retVO.setAdmin(rs.getBoolean(6));
+				retVO.setMemberCreateDate(rs.getDate(7));;
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			close(conn);
+		}
+		
+		return retVO;
+	}
 	
-	public void close(Connection conn) {
+	private void close(Connection conn) {
 		try {
 			pstmt.close();
 			conn.setAutoCommit(true);

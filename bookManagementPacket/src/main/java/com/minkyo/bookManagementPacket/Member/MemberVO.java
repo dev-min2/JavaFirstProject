@@ -3,54 +3,55 @@ package com.minkyo.bookManagementPacket.Member;
 import java.sql.Date;
 
 public class MemberVO {
-	private long userUID;
-	private String userID;
-	private String userPassword;
-	private String userEmail;
-	private String nickName;
-	private boolean admin;
-	private Date createDate;
-
-	public long getUserUID() {
-		return userUID;
+	private long memberUID;
+	private String memberID;
+	private String memberPassword;
+	private String memberEmail;
+	private String memberNickName;
+	private boolean isAdmin;
+	private Date memberCreateDate;
+	public long getMemberUID() {
+		return memberUID;
 	}
-	public void setUserUID(long userUID) {
-		this.userUID = userUID;
+	public void setMemberUID(long memberUID) {
+		this.memberUID = memberUID;
 	}
-	public String getUserID() {
-		return userID;
+	public String getMemberID() {
+		return memberID;
 	}
-	public void setUserID(String userID) {
-		this.userID = userID;
+	public void setMemberID(String memberID) {
+		this.memberID = memberID;
 	}
-	public String getUserPassword() {
-		return userPassword;
+	public String getMemberPassword() {
+		return memberPassword;
 	}
-	public void setUserPassword(String userPassword) {
-		this.userPassword = userPassword;
+	public void setMemberPassword(String memberPassword) {
+		this.memberPassword = memberPassword;
 	}
-	public String getUserEmail() {
-		return userEmail;
+	public String getMemberEmail() {
+		return memberEmail;
 	}
-	public void setUserEmail(String userEmail) {
-		this.userEmail = userEmail;
+	public void setMemberEmail(String memberEmail) {
+		this.memberEmail = memberEmail;
 	}
-	public String getNickName() {
-		return nickName;
+	public String getMemberNickName() {
+		return memberNickName;
 	}
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
+	public void setMemberNickName(String memberNickName) {
+		this.memberNickName = memberNickName;
 	}
 	public boolean isAdmin() {
-		return admin;
+		return isAdmin;
 	}
-	public void setAdmin(boolean admin) {
-		this.admin = admin;
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
 	}
-	public Date getCreateDate() {
-		return createDate;
+	public Date getMemberCreateDate() {
+		return memberCreateDate;
 	}
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setMemberCreateDate(Date memberCreateDate) {
+		this.memberCreateDate = memberCreateDate;
 	}
+
+	
 }
