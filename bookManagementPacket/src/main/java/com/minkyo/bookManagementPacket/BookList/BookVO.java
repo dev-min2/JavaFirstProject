@@ -1,6 +1,7 @@
 package com.minkyo.bookManagementPacket.BookList;
 
 import java.io.Serializable;
+import java.sql.Date;
 
 public class BookVO implements Serializable{
 	private int bookNo;
@@ -9,6 +10,7 @@ public class BookVO implements Serializable{
 	private String bookPublisher;
 	private String bookIntroduce;
 	private String bookImgPath;
+	private Date bookRegistDate;
 	
 	public int getBookNo() {
 		return bookNo;
@@ -45,5 +47,11 @@ public class BookVO implements Serializable{
 	}
 	public void setBookImgPath(String bookImgPath) {
 		this.bookImgPath = bookImgPath;
+	}
+	public Date getBookRegistDate() {
+		return bookRegistDate;
+	}
+	public void setBookRegistDate(Date bookRegistDate) {
+		this.bookRegistDate = bookRegistDate;
 	}
 }

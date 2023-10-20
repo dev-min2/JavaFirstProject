@@ -102,11 +102,7 @@ public class BookJoinPanel extends JPanel {
 	}
 	
 	private void resetTextField() {
-		idTextField.setText("");
-		passwordTextField.setText("");
-		passwordVerifyTextField.setText("");
-		emailTextField.setText("");
-		nickNameTextField.setText("");
+		Util.resetTextField(idTextField, passwordTextField, passwordVerifyTextField, emailTextField, nickNameTextField);
 	}
 	
 	private void setButtonListener() {

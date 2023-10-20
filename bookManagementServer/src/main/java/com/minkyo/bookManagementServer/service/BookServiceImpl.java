@@ -2,12 +2,17 @@ package com.minkyo.bookManagementServer.service;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.List;
+import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
 import com.minkyo.bookManagementServer.dao.BookDAO;
 import com.minkyo.bookManagementServer.dao.BookDAOImpl;
 
@@ -66,5 +71,38 @@ public class BookServiceImpl implements BookService {
 		}
 		
 		return ret;
+	}
+
+	public List<BookVO> selectAllBook(SELECT_ALL_BOOK_DATA_REQ packet) {
+		return dao.selectAllBook();
+	}
+
+	@Override
+	public byte[] getImageBuffer(BOOK_IMAGE_REQ packet) {
+		if(packet.bookNo <= 0 || packet.bookTitle == null || packet.bookTitle.isEmpty())
+			return null;
+		
+		BookVO vo = dao.selectOneBook(packet.bookNo, packet.bookTitle);
+		if(vo == null)
+			return null;
+		
+		String imagePath = vo.getBookImgPath();
+		File imgFile = new File(imagePath);
+		if(!imgFile.exists())
+			return null;
+		
+		byte[] retImageBuffer = null;
+		try {
+			BufferedImage bfImg =ImageIO.read(imgFile);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(bfImg, "jpg", baos);
+			
+			retImageBuffer = Utils.compress(baos.toByteArray(), Deflater.BEST_COMPRESSION, false);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return retImageBuffer;
 	}
 }

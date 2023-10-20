@@ -7,7 +7,11 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 
@@ -32,6 +36,23 @@ public class Util {
 		for(JTextField text : textFields) {
 			text.setText("");
 		}
+	}
+	
+	public static boolean existDir(String localDirPath) {
+		 File directory = new File(localDirPath);
+
+	     if(directory.exists() && directory.isDirectory()) 
+	    	 return true;
+	    	 
+		return false;
+	}
+	
+	public static boolean existFile(String localFilePath) {
+		File file = new File(localFilePath);
+		if(file.exists())
+			return true;
+		
+		return false;
 	}
 	
 	public static boolean createLocalDir(String localDirPath)
@@ -62,6 +83,7 @@ public class Util {
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 		
 		return true;
@@ -70,19 +92,24 @@ public class Util {
 	public static Image getImageFile(String fileName) {
 		Image image = null;
 
-		// 테스트환경은 하드코딩
-		String imagePath = "C:\\javaFirstPrj\\bookManagementClient\\src\\main\\resources\\";
-		imagePath += fileName;
+		InputStream is = Util.class.getClassLoader().getResourceAsStream(fileName); //"C:\\javaFirstPrj\\bookManagementClient\\src\\main\\resources\\";		
 		try {
-			java.io.File file = new java.io.File(imagePath);
-			image = ImageIO.read(file);
-			if(image == null) {
-				//java.io.File file2 = new java.io.File(fileName);
-				image = new ImageIcon(Util.class.getResource(fileName)).getImage();
+			String path = null;
+			if(is != null) {
+				// jar파일인경우.
+				image = ImageIO.read(is);
 			}
+			
+//			java.io.File file = new java.io.File(path);
+//			image = ImageIO.read(file);
+//			if(image == null) {
+//				//java.io.File file2 = new java.io.File(fileName);
+//				image = new ImageIcon(Util.class.getResource(fileName)).getImage();
+//			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 		
 		return image;
@@ -91,15 +118,14 @@ public class Util {
 	public static Image getImageByFullPath(String path) {
 		Image image = null;
 
-		// 테스트환경은 하드코딩
 		String imagePath = path;
 		try {
 			java.io.File file = new java.io.File(imagePath);
 			image = ImageIO.read(file);
-			if(image == null) {
-				//java.io.File file2 = new java.io.File(fileName);
-				//image = new ImageIcon(Util.class.getResource(fileName)).getImage();
-			}
+//			if(image == null) {
+//				//java.io.File file2 = new java.io.File(fileName);
+//				//image = new ImageIcon(Util.class.getResource(fileName)).getImage();
+//			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();

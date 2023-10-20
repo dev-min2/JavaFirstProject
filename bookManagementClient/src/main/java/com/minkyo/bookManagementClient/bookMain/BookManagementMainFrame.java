@@ -1,6 +1,7 @@
 package com.minkyo.bookManagementClient.bookMain;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.util.HashMap;
 
 import javax.swing.ImageIcon;
@@ -20,16 +21,13 @@ import SockNet.NetClient;
 public class BookManagementMainFrame extends JFrame {
 	public static final int SCREEN_WIDTH = 1024;
 	public static final int SCREEN_HEIGHT = 768;
-	public static Image shareDefaultBackgroundImage = null;
 	public static Image colorBackgroundImage = null;
 	
 	private static BookManagementMainFrame inst = null;
 	private NetClient net = new NetClient();
-	private HashMap<BookPanelType, JPanel> panelByType = new HashMap<>();
 	private JPanel currentShowPanel = null; 
 	
 	private MemberVO myAccountInfo = null;
-	
 	private BookManagementMainFrame() {}
 	
 	public static BookManagementMainFrame getInstance() {
@@ -50,7 +48,7 @@ public class BookManagementMainFrame extends JFrame {
 		myAccountInfo = vo;
 	}
 	
-	public void init() {
+	public void init() throws IOException {
 		try {
 			// 연결한 IP(도메인주소)와 Port번호를 입력.
 			net.startToConnect("localhost", 9999);
@@ -60,13 +58,6 @@ public class BookManagementMainFrame extends JFrame {
 			Util.ErrDialog(inst, error, JOptionPane.ERROR_MESSAGE );
 			return;
 		}
-		
-		
-		shareDefaultBackgroundImage = Util.resize(
-				new ImageIcon(Util.getImageFile("rabbitBackgroundImg.jpg")), 
-				BookManagementMainFrame.SCREEN_WIDTH,
-				BookManagementMainFrame.SCREEN_HEIGHT
-		).getImage();
 		
 		colorBackgroundImage = Util.resize(
 				new ImageIcon(Util.getImageFile("defaultBackgroundColor.jpg")), 
@@ -88,16 +79,31 @@ public class BookManagementMainFrame extends JFrame {
 	}
 	
 	public void changePanel(BookPanelType panelType) {
-		if(!panelByType.containsKey(panelType)) {
-			Util.ErrDialog(inst, "없는 패널 타입으로 전환시도", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-
 		this.remove(currentShowPanel);
 		
-		JPanel changePanel = panelByType.get(panelType);
-		currentShowPanel.setVisible(false);
-		changePanel.setVisible(true);
+		JPanel changePanel = null;
+		switch(panelType) {
+			case LoginPanel:
+				changePanel = new BookLoginPanel(panelType);
+				break;
+			case JoinPanel:
+				changePanel = new BookJoinPanel(panelType);
+				break;
+			case MainPanel:
+				changePanel = new BookMainPanel(panelType);
+				break;
+			case BookRequestBoardPanel:
+				changePanel = new BookRequestBoardPanel(panelType);
+				break;
+			case BookListPanel:
+				changePanel = new BookListPanel(panelType);
+				break;
+			default:
+				Util.ErrDialog(inst, "없는 패널 타입으로 전환시도", JOptionPane.ERROR_MESSAGE);
+		}
+		
+		currentShowPanel = changePanel;
+		currentShowPanel.setVisible(true);
 		
 		if(panelType == BookPanelType.BookListPanel) {
 			BookListPanel panel = (BookListPanel)changePanel;
@@ -112,27 +118,8 @@ public class BookManagementMainFrame extends JFrame {
 	
 	private void panelInit() {
 		BookLoginPanel loginPanel = new BookLoginPanel(BookPanelType.LoginPanel);
-		BookJoinPanel joinPanel = new BookJoinPanel(BookPanelType.JoinPanel);
-		BookListPanel listPanel = new BookListPanel(BookPanelType.BookListPanel);
-		BookMainPanel mainPanel = new BookMainPanel(BookPanelType.MainPanel);
-		BookRequestBoardPanel reqBoardPanel = new BookRequestBoardPanel(BookPanelType.BookRequestBoardPanel);
-		
-		panelByType.put(BookPanelType.LoginPanel, loginPanel);
-		panelByType.put(BookPanelType.JoinPanel, joinPanel);
-		panelByType.put(BookPanelType.BookListPanel, listPanel);
-		panelByType.put(BookPanelType.MainPanel, mainPanel);
-		panelByType.put(BookPanelType.BookRequestBoardPanel, reqBoardPanel);
-		
-		setUnvisiblePanels();
-		
 		currentShowPanel = loginPanel;
 		this.add(loginPanel);
 		loginPanel.setVisible(true);
 	}
-	
-	private void setUnvisiblePanels() {
-		panelByType.entrySet().stream().forEach(obj -> obj.getValue().setVisible(false));
-	}
-	
-	//public void recv
 }

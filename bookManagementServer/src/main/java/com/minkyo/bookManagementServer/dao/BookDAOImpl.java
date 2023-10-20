@@ -3,6 +3,8 @@ package com.minkyo.bookManagementServer.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.minkyo.bookManagementPacket.BookList.BookVO;
 
@@ -70,5 +72,77 @@ public class BookDAOImpl implements BookDAO {
 		catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public List<BookVO> selectAllBook() {
+		List<BookVO> books = new ArrayList<BookVO>();
+		
+		Connection conn = DBConnectionPool.getInstance().getPoolConnection();
+		String sql = "SELECT BOOKNO, BOOK_TITLE, BOOK_AUTHOR, BOOK_PUBLISHER, BOOK_INTRODUCE, BOOK_REGIST_DATE "
+				+ "FROM BOOK";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				BookVO vo = new BookVO();
+				vo.setBookNo(rs.getInt("BOOKNO"));
+				vo.setBookTitle(rs.getString("BOOK_TITLE"));
+				vo.setBookAuthor(rs.getString("BOOK_AUTHOR"));
+				vo.setBookPublisher(rs.getString("BOOK_PUBLISHER"));
+				vo.setBookIntroduce(rs.getString("BOOK_INTRODUCE"));
+				vo.setBookRegistDate(rs.getDate("BOOK_REGIST_DATE"));
+				
+				books.add(vo);
+			}
+			
+			rs.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			close(conn);
+		}
+		
+		return books;
+	}
+
+	@Override
+	public BookVO selectOneBook(int bookNo, String bookTitle) {
+		// TODO Auto-generated method stub
+		BookVO vo = null;
+		
+		Connection conn = DBConnectionPool.getInstance().getPoolConnection();
+		String sql = "SELECT BOOKNO, BOOK_TITLE, BOOK_AUTHOR, BOOK_PUBLISHER, BOOK_INTRODUCE, BOOK_IMGPATH, BOOK_REGIST_DATE "
+				+ "FROM BOOK WHERE BOOKNO = ? AND BOOK_TITLE = ?";
+		try {
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, bookNo);
+			pstmt.setString(2, bookTitle);
+			
+			ResultSet rs = pstmt.executeQuery();
+			if(rs.next()) {
+				vo = new BookVO();
+				vo.setBookNo(rs.getInt("BOOKNO"));
+				vo.setBookTitle(rs.getString("BOOK_TITLE"));
+				vo.setBookAuthor(rs.getString("BOOK_AUTHOR"));
+				vo.setBookPublisher(rs.getString("BOOK_PUBLISHER"));
+				vo.setBookIntroduce(rs.getString("BOOK_INTRODUCE"));
+				vo.setBookImgPath(rs.getString("BOOK_IMGPATH"));
+				vo.setBookRegistDate(rs.getDate("BOOK_REGIST_DATE"));
+			}
+			
+			rs.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			close(conn);
+		}
+		
+		return vo;
 	}
 }

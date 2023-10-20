@@ -18,11 +18,6 @@ public class App
         catch(Exception e) {
         	e.printStackTrace();
         }
-        
-        while(true) {
-        	Thread.currentThread().sleep(10000000);
-        }
-        
-        
+
     }
 }

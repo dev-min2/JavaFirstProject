@@ -14,10 +14,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
@@ -31,7 +34,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -41,6 +43,9 @@ import com.minkyo.bookManagementClient.bookMain.Util;
 import com.minkyo.bookManagementPacket.NetError;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_ACK;
+import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_REQ;
+import com.minkyo.bookManagementPacket.BookList.BookVO;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_ACK;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
 import com.minkyo.bookManagementPacket.Member.MemberVO;
@@ -53,7 +58,6 @@ import SockNet.NetClient;
 public class BookListPanel extends JPanel {
 	private BookPanelType pnType;
 	private JButton backBtn = new JButton("돌아가기");
-	private JButton bookRegistBtn = new JButton("도서등록");
 	
 	private static final int MAX_ONEPAGE_BOOK_COUNT = 20;
 	private static final int MAX_TABLE_ROW_COUNT = 8;
@@ -68,22 +72,23 @@ public class BookListPanel extends JPanel {
 	private JButton bookRentBtn = new JButton("대여하기");
 	private JButton bookRefreshBtn = new JButton("⟲");
 	
-	private BookInfo bookInfo = null; 
+	private Map<String,BookVO> bookVOByBookTitle = new HashMap<String, BookVO>(); 
+	private BookInfo selectedBookInfo = null;
 	
 	private boolean isOpenBookRegistDialog = false;
 	
-	private JDialog dialog = new JDialog();
-	private JTextField bookTitle = new JTextField();
-	private JLabel titleLabel = new JLabel("도서 제목:");
-	private JTextField bookAuthor = new JTextField();
-	private JLabel authorLabel = new JLabel("저자:");
-	private JTextField bookPublisher = new JTextField();
-	private JLabel publisherLabel = new JLabel("출판사:");
-	private JTextField bookIntroduce = new JTextField();
-	private JLabel introduceLabel = new JLabel("소개글:");
-	private JButton imageChoiceBtn = new JButton("imageChoiceBtn!");
-	private JButton submitBtn = new JButton("등록");
-	
+	private JButton bookRegistBtn = null;
+	private JDialog dialog = null;
+	private JTextField bookTitle = null;
+	private JLabel titleLabel = null;
+	private JTextField bookAuthor = null;
+	private JLabel authorLabel = null;
+	private JTextField bookPublisher = null;
+	private JLabel publisherLabel = null;
+	private JTextField bookIntroduce = null;
+	private JLabel introduceLabel = null;
+	private JButton imageChoiceBtn = null;
+	private JButton submitBtn = null;
 	private JLabel imageLabel = new JLabel("이미지 추가");
 	private JFileChooser fileChooser = new JFileChooser();
 	private JButton imgBtn = null; 
@@ -94,14 +99,8 @@ public class BookListPanel extends JPanel {
 		this.pnType = pnType;
 		this.setSize(new Dimension(BookManagementMainFrame.SCREEN_WIDTH,BookManagementMainFrame.SCREEN_HEIGHT));
 		this.setLayout(null);
-		this.setPreferredSize(new Dimension(10000, 10000));
-		
-		bookInfo = new BookInfo();
-		bookInfo.setBookImg(new JButton());
-		bookInfo.getBookImg().setBounds(750,52,BookInfo.MAX_BOOK_IMG_WIDTH,BookInfo.MAX_BOOK_IMG_HEIGHT);
 		
 		backBtn.setBounds(20,52,100,50);
-		bookRegistBtn.setBounds(20, 130, 100, 50);
 		
 		bookPrevBtn.setBounds(250,660, 70, 50);
 		bookNextBtn.setBounds(630,660, 70,50);
@@ -111,22 +110,18 @@ public class BookListPanel extends JPanel {
 		
 		bookRefreshBtn.setFont(new Font("Dialog",Font.BOLD, 18));
 		
-		dialog.setVisible(false);
-		bookRegistBtn.setVisible(false);
-		
-		initRegistBookDialog();
-		setBookInfo("test");
 		initJList();
 		setButtonListener();
 		
 		add(backBtn);
-		add(bookRegistBtn);
 		add(bookList);
 		add(bookBackground);
 		add(bookPrevBtn);
 		add(bookNextBtn);
 		add(bookRentBtn);
-		add(bookRefreshBtn);		
+		add(bookRefreshBtn);	
+		
+		this.setComponentZOrder(bookBackground, 3);
 	}
 	
 	@Override
@@ -136,16 +131,15 @@ public class BookListPanel extends JPanel {
 	
 	private void initJList() {
 		bookList = new JList();
-		
+		DefaultListModel model = new DefaultListModel();
+		bookModelList.add(model);
 		bookBackground = new JList();
 		bookBackground.setBounds(720,50,250,600);
 		bookBackground.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		bookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		bookList.setBounds(250,50,450,600);
 		bookList.setFont(new Font("Serif",Font.BOLD, 21));
-		
-		
 	}
 
 	private void setButtonListener() {
@@ -153,28 +147,65 @@ public class BookListPanel extends JPanel {
 			// 로그인 가능한지 패킷 송신
 			BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
 		};
-
-		ActionListener bookRegistBtnAction = (ActionEvent e) -> {
-			dialog.setVisible(true);
+		
+		ActionListener bookPrevBtnAction = (ActionEvent e) -> {
+			if(curModelIndex - 1 < 0)
+				return;
+			
+			bookList.setModel(bookModelList.get(--curModelIndex));
+		};
+		
+		ActionListener bookNextBtnAction = (ActionEvent e) -> {
+			if(curModelIndex + 1 >= bookModelList.size())
+				return;
+			
+			bookList.setModel(bookModelList.get(++curModelIndex));
 		};
 		
 		MouseListener mouseListener = new MouseAdapter() {
 			@Override
 		    public void mouseClicked(MouseEvent e) {
-		        if (e.getClickCount() >= 1) {
+		        if(e.getClickCount() >= 1) {
 		           String selectedItem = (String) bookList.getSelectedValue();
-		           // add selectedItem to your second list.
 		           //DefaultListModel model = (DefaultListModel) bookList.getModel();
-		         }
+		           
+		           if(!bookVOByBookTitle.containsKey(selectedItem)) {
+		        	   Util.ErrDialog(BookListPanel.this, "존재하지 않는 책정보를 선택", JOptionPane.ERROR_MESSAGE);
+		        	   return;
+		           }
+		           
+		           BookVO bookVO = bookVOByBookTitle.get(selectedItem);
+		           setBookInfo(bookVO);
+		        }
 		    }
 		};
 		
 		bookList.addMouseListener(mouseListener);
 		backBtn.addActionListener(backBtnAction);
-		bookRegistBtn.addActionListener(bookRegistBtnAction);
+		bookPrevBtn.addActionListener(bookPrevBtnAction);
+		bookNextBtn.addActionListener(bookNextBtnAction);
 	}
 	
 	private void initRegistBookDialog() {
+		bookRegistBtn = new JButton("도서등록");
+		bookRegistBtn.setBounds(20, 130, 100, 50);
+		add(bookRegistBtn);
+		
+		dialog = new JDialog();
+		bookTitle = new JTextField();
+		titleLabel = new JLabel("도서 제목:");
+		bookAuthor = new JTextField();
+		authorLabel = new JLabel("저자:");
+		bookPublisher = new JTextField();
+		publisherLabel = new JLabel("출판사:");
+		bookIntroduce = new JTextField();
+		introduceLabel = new JLabel("소개글:");
+		imageChoiceBtn = new JButton("imageChoiceBtn!");
+		submitBtn = new JButton("등록");
+		imageLabel = new JLabel("이미지 추가");
+		fileChooser = new JFileChooser();
+		imgBtn = new JButton();
+		
 		dialog.addWindowListener(new WindowAdapter() {
 			@Override
             public void windowClosed(WindowEvent arg0) {
@@ -256,11 +287,16 @@ public class BookListPanel extends JPanel {
 		submitBtn.setBounds(280,180,140,170);
 		dialog.add(submitBtn);
 
-		imgBtn = new JButton();
 		imgBtn.setBorderPainted(false);
 		imgBtn.setBounds(130,180,140,170);
 		imgBtn.setVisible(false);
 		dialog.add(imgBtn);
+		
+
+		ActionListener bookRegistBtnAction = (ActionEvent e) -> {
+			dialog.setVisible(true);
+		};
+
 		
 		ActionListener imgAddBtnAction = (ActionEvent e3) -> {
 			int retVal = fileChooser.showOpenDialog(getParent());
@@ -313,6 +349,7 @@ public class BookListPanel extends JPanel {
 		
 		imageChoiceBtn.addActionListener(imgAddBtnAction);
 		submitBtn.addActionListener(submitBtnAction);
+		bookRegistBtn.addActionListener(bookRegistBtnAction);
 	}
 	
 	private void resetRegistDialog() {
@@ -323,80 +360,166 @@ public class BookListPanel extends JPanel {
 		imgBtn.setVisible(false);
 	}
 	
-	private void setBookInfo(String bookTitle) {
-		bookInfo.getBookImg().setBorderPainted(false);
-		bookInfo.getBookImg().setBackground(new Color(255,255,255));
+	private BookInfo setBookInfo(BookVO bookVO) {
+		if(selectedBookInfo != null) {
+			this.remove(selectedBookInfo.getBookTitle());
+			this.remove(selectedBookInfo.getBookAuthor());
+			this.remove(selectedBookInfo.getBookImg());
+			this.remove(selectedBookInfo.getBookPublisher());
+			this.remove(selectedBookInfo.getBookIntroduce());
+//			this.remove(selectedBookInfo.getHistoryTable());
+//			this.remove(selectedBookInfo.getHistoryNextBtn());
+//			this.remove(selectedBookInfo.getHistoryPrevBtn());
+		}
 		
+		BookInfo newBook = new BookInfo();
+		Image bookImage = null;
+		
+		JButton imgBtn = new JButton();
+		imgBtn.setBorderPainted(false);
+		imgBtn.setBounds(750,52,BookInfo.MAX_BOOK_IMG_WIDTH,BookInfo.MAX_BOOK_IMG_HEIGHT);
+		imgBtn.setBackground(new Color(255,255,255));
+		
+		// 이미지 정보를 받아옴, 로컬에 있다면 로컬에서 읽어온다.
+		String localPath = "C:\\bookManagementBookImg";
+		
+		if(!Util.existDir(localPath)) {
+			if(!Util.createLocalDir(localPath))
+				return null;
+		}
+		
+		localPath += "\\" + bookVO.getBookTitle() + ".jpg";
+		if(!Util.existFile(localPath)) {
+			// 없으면 이미지 요청
+			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+			try {
+				BOOK_IMAGE_REQ req = new BOOK_IMAGE_REQ();
+				BOOK_IMAGE_ACK ack = null;
+				
+				req.bookNo = bookVO.getBookNo();
+				req.bookTitle = bookVO.getBookTitle();
+				
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				ack = (BOOK_IMAGE_ACK)net.recv();
+				if(ack.netError != NetError.NET_OK) {
+					return null;
+				}
+				
+				byte[] decompressedData = Utils.decompress(ack.imageBuffer, false);
+				BufferedImage image = ImageIO.read(new ByteArrayInputStream(decompressedData));
+
+				File outputfile = new File(localPath);
+				if(!ImageIO.write(image, "jpg", outputfile))
+					return null;
+				
+				bookImage = ImageIO.read(new File(localPath));
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+				return null;
+			}
+		}
+		else { 
+			bookImage = Util.getImageByFullPath(localPath);
+			if(bookImage == null)
+				return null;
+		}
 		Icon icon = Util.resize(
-				new ImageIcon(Util.getImageFile("혼자공부하는자바.jpg")), 
-				bookInfo.getBookImg().getWidth(),
-				bookInfo.getBookImg().getHeight()
+				new ImageIcon(bookImage), 
+				imgBtn.getWidth(),
+				imgBtn.getHeight()
 		);
-		bookInfo.getBookImg().setIcon(icon);
-		
-		bookInfo.setBookTitle(new JLabel("혼자공부하는자바"));
-		bookInfo.getBookTitle().setBounds(750, 310, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
-		bookInfo.getBookTitle().setFont(new Font("Serif", Font.BOLD, 16));
-		
-		bookInfo.setBookAuthor(new JLabel("저자 : 강남"));
-		bookInfo.getBookAuthor().setBounds(750, 340, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
-		bookInfo.getBookAuthor().setFont(bookInfo.getFont());
-		
-		bookInfo.setBookPublisher(new JLabel("출판사 : 민교"));
-		bookInfo.getBookPublisher().setBounds(750, 370, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
-		bookInfo.getBookPublisher().setFont(bookInfo.getFont());
-		
-		// 최대 13글자
-		bookInfo.setBookIntroduce(new JLabel("<html><body>혼자공부할수있는자바책입니다.음ㄴ햐나ㅐㅎ언ㅇㅁ험ㄴ애ㅑ헌ㅇ햐ㅐ넝햐ㅐ</body></html>"));
-		bookInfo.getBookIntroduce().setBounds(750, 140, BookInfo.DEFAULT_LABEL_WIDTH + 50, 600);
-		bookInfo.getBookIntroduce().setFont(bookInfo.getFont());
-		
-		String[] header = {"이름","대여날짜","반납날짜"};
-		String[][] contents = { 
-				{"전민교","22/04/04","22/04/10"},
-				{"전민교","22/04/04","22/04/10"},
-				{"전민교","22/04/04","22/04/10"},
-				{"전민교","22/04/04","22/04/10"},
-				{"전민교","22/04/04","22/04/10"},
-				{"전민교","22/04/04","22/04/10"},
-		};
-		
-		bookInfo.setHistoryTable(new JTable(contents, header));
-		
-		JTable historyTable = bookInfo.getHistoryTable();
-		historyTable.setBounds(750,510, 200, 100);
-		historyTable.getTableHeader().setBounds(750, 480, 200, 30);
-		historyTable.getTableHeader().setFont(new Font("Serif",Font.BOLD, 12));
-		historyTable.getTableHeader().setReorderingAllowed(false);
-		historyTable.getTableHeader().setResizingAllowed(false);
-		
-		JButton bookHistoryPrevBtn = bookInfo.getHistoryPrevBtn();
-		JButton bookHistoryNextBtn = bookInfo.getHistoryNextBtn();
-		bookHistoryPrevBtn.setBounds(750,610,40,35);
-		bookHistoryPrevBtn.setFont(new Font("Serif",Font.BOLD, 7));
-		bookHistoryNextBtn.setBounds(910,610,40,35);
-		bookHistoryNextBtn.setFont(new Font("Serif",Font.BOLD, 7));
+		imgBtn.setIcon(icon);
 
-		add(historyTable.getTableHeader());
-		add(bookInfo.getBookImg());
-		add(bookInfo.getBookTitle());
-		add(bookInfo.getBookPublisher());
-		add(bookInfo.getBookAuthor());
-		add(bookInfo.getBookIntroduce());
-		add(historyTable);
-		add(bookHistoryPrevBtn);
-		add(bookHistoryNextBtn);
-		this.setComponentZOrder(bookHistoryPrevBtn, 1);
-		this.setComponentZOrder(bookHistoryNextBtn, 1);
+		newBook.setBookImg(imgBtn);
+		newBook.setBookNo(bookVO.getBookNo());
+		
+		Font font = new Font("Serif",Font.PLAIN, 16);
+		
+		JLabel bookTitleLabel = new JLabel(bookVO.getBookTitle());
+		bookTitleLabel.setBounds(750, 310, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		bookTitleLabel.setFont(new Font("Serif", Font.BOLD, 16));
+		newBook.setBookTitle(bookTitleLabel);
+		
+		JLabel bookAuthorLabel = new JLabel("저자 : " + bookVO.getBookAuthor());
+		bookAuthorLabel.setBounds(750, 340, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		bookAuthorLabel.setFont(font);
+		newBook.setBookAuthor(bookAuthorLabel);
+		
+		JLabel bookPublisherLabel = new JLabel("출판사 : " + bookVO.getBookPublisher());
+		bookPublisherLabel.setBounds(750, 370, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		bookPublisherLabel.setFont(font);
+		newBook.setBookPublisher(bookPublisherLabel);
+		
+		JLabel bookIntroduceLabel = new JLabel("<html><body>" + bookVO.getBookIntroduce() + "</body></html>");
+		bookIntroduceLabel.setBounds(750, 400, BookInfo.DEFAULT_LABEL_WIDTH + 50, 600);
+		bookIntroduceLabel.setFont(font);
+		newBook.setBookIntroduce(bookIntroduceLabel);
+		
+		add(imgBtn);
+		add(bookTitleLabel);
+		add(bookAuthorLabel);
+		add(bookPublisherLabel);
+		add(bookIntroduceLabel);
+//		
+		this.setComponentZOrder(imgBtn, 5);
+		this.setComponentZOrder(bookTitleLabel, 5);
+		this.setComponentZOrder(bookAuthorLabel, 5);
+		this.setComponentZOrder(bookPublisherLabel, 5);
+		this.setComponentZOrder(bookIntroduceLabel, 5);
+		
 
-		// 이미지를 보이게하기 위해 order 앞으로 댕김
-		this.setComponentZOrder(bookInfo.getBookImg(), 1);
-		this.setComponentZOrder(bookInfo.getBookTitle(), 1);
-		this.setComponentZOrder(bookInfo.getBookAuthor(), 1);
-		this.setComponentZOrder(bookInfo.getBookPublisher(), 1);
-		this.setComponentZOrder(bookInfo.getBookIntroduce(), 1);
-		this.setComponentZOrder(historyTable, 4);
-		this.setComponentZOrder(historyTable.getTableHeader(), 4);
+//		
+//		String[] header = {"이름","대여날짜","반납날짜"};
+//		String[][] contents = { 
+//				{"전민교","22/04/04","22/04/10"},
+//				{"전민교","22/04/04","22/04/10"},
+//				{"전민교","22/04/04","22/04/10"},
+//				{"전민교","22/04/04","22/04/10"},
+//				{"전민교","22/04/04","22/04/10"},
+//				{"전민교","22/04/04","22/04/10"},
+//		};
+//		
+//		bookInfo.setHistoryTable(new JTable(contents, header));
+//		
+//		JTable historyTable = bookInfo.getHistoryTable();
+//		historyTable.setBounds(750,510, 200, 100);
+//		historyTable.getTableHeader().setBounds(750, 480, 200, 30);
+//		historyTable.getTableHeader().setFont(new Font("Serif",Font.BOLD, 12));
+//		historyTable.getTableHeader().setReorderingAllowed(false);
+//		historyTable.getTableHeader().setResizingAllowed(false);
+//		
+//		JButton bookHistoryPrevBtn = bookInfo.getHistoryPrevBtn();
+//		JButton bookHistoryNextBtn = bookInfo.getHistoryNextBtn();
+//		bookHistoryPrevBtn.setBounds(750,610,40,35);
+//		bookHistoryPrevBtn.setFont(new Font("Serif",Font.BOLD, 7));
+//		bookHistoryNextBtn.setBounds(910,610,40,35);
+//		bookHistoryNextBtn.setFont(new Font("Serif",Font.BOLD, 7));
+//
+//		add(historyTable.getTableHeader());
+//		add(bookInfo.getBookImg());
+//		add(bookInfo.getBookTitle());
+//		add(bookInfo.getBookPublisher());
+//		add(bookInfo.getBookAuthor());
+//		add(bookInfo.getBookIntroduce());
+//		add(historyTable);
+//		add(bookHistoryPrevBtn);
+//		add(bookHistoryNextBtn);
+//		this.setComponentZOrder(bookHistoryPrevBtn, 1);
+//		this.setComponentZOrder(bookHistoryNextBtn, 1);
+//
+//		// 이미지를 보이게하기 위해 order 앞으로 댕김
+//		this.setComponentZOrder(bookInfo.getBookImg(), 1);
+//		this.setComponentZOrder(bookInfo.getBookTitle(), 1);
+//		this.setComponentZOrder(bookInfo.getBookAuthor(), 1);
+//		this.setComponentZOrder(bookInfo.getBookPublisher(), 1);
+//		this.setComponentZOrder(bookInfo.getBookIntroduce(), 1);
+//		this.setComponentZOrder(historyTable, 4);
+//		this.setComponentZOrder(historyTable.getTableHeader(), 4);
+		
+		selectedBookInfo = newBook;
+		return newBook;
 	}
 	
 	private void choiceImage(JDialog dialog) {
@@ -425,6 +548,7 @@ public class BookListPanel extends JPanel {
 		// TODO Auto-generated method stub
 		MemberVO vo = BookManagementMainFrame.getInstance().getAccountInfo();
 		if(vo != null && vo.isAdmin()) {
+			initRegistBookDialog();
 			bookRegistBtn.setVisible(true);
 		}
 		
@@ -438,13 +562,25 @@ public class BookListPanel extends JPanel {
 			net.send(packet);
 			
 			ack = (SELECT_ALL_BOOK_DATA_ACK)net.recv();
-			if(ack.netError == NetError.NET_OK) {
+			if(ack.netError == NetError.NET_OK && ack.bookList.size() > 0) {
 				for(int i = 0; i < ack.bookList.size(); ++i) {
-					if((i % 20 == 0)) {
+					if((i % 20 == 0) && i != 0) {
 						curModelIndex += 1;
+						DefaultListModel model = new DefaultListModel();
+						bookModelList.add(model);
 					}
+					int colIndex = i % 20;
+					
+					BookVO bookVO = ack.bookList.get(i);
+					bookModelList.get(curModelIndex).add(colIndex, bookVO.getBookTitle());
+					
+					bookVOByBookTitle.put(bookVO.getBookTitle(), bookVO);
 				}
 			}
+			
+			// 첫번째 모델 리스트부터 보여준다
+			bookList.setModel(bookModelList.get(0));
+			curModelIndex = 0;
 		}
 		catch(Exception e) {
 			e.printStackTrace();

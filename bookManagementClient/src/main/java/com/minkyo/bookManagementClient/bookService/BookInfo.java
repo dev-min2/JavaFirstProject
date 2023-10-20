@@ -14,6 +14,7 @@ public class BookInfo {
 	public static final int DEFAULT_LABEL_HEIGHT = 30;
 	
 	private JButton bookImg = null;
+	private int bookNo = 0;
 	private JLabel bookTitle = null;
 	private JLabel bookAuthor = null;
 	private JLabel bookIntroduce = null;
@@ -24,6 +25,8 @@ public class BookInfo {
 	private JButton bookHistoryNextBtn = new JButton("▶");
 	private Font font = new Font("Serif",Font.PLAIN, 16);
 	
+	public int getBookNo() { return bookNo; }
+	public void setBookNo(int bookNo) { this.bookNo = bookNo; }
 	public JTable getHistoryTable() { return historyTable; }
 	public void setHistoryTable(JTable table) { historyTable = table; }
 	public JButton getHistoryPrevBtn() { return bookHistoryPrevBtn; }
