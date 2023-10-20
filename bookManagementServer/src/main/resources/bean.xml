@@ -10,4 +10,14 @@
 	<bean id="memberController" class="com.minkyo.bookManagementServer.controller.MemberController">
 		<constructor-arg ref="memberService" />
 	</bean>
+	
+	<!--  book -->
+	<bean id="bookDAO" class="com.minkyo.bookManagementServer.dao.BookDAOImpl" />
+	<bean id="bookService" class="com.minkyo.bookManagementServer.service.BookServiceImpl">
+		<constructor-arg ref="bookDAO" />
+		<constructor-arg value="C:\bookManagementServer" />
+	</bean>
+	<bean id="bookController" class="com.minkyo.bookManagementServer.controller.BookController">
+		<constructor-arg ref="bookService" />
+	</bean>
 </beans>

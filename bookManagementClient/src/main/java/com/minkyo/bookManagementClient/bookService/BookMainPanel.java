@@ -106,4 +106,5 @@ public class BookMainPanel extends JPanel {
 		requestBoardBtn.addActionListener(request_board_action);
 		rentBoardBtn.addActionListener(rent_board_action);
 	}
+
 }

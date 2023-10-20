@@ -1,6 +1,5 @@
 package com.minkyo.bookManagementClient.bookMain;
 
-import java.awt.Color;
 import java.awt.Image;
 import java.util.HashMap;
 
@@ -14,6 +13,7 @@ import com.minkyo.bookManagementClient.bookService.BookListPanel;
 import com.minkyo.bookManagementClient.bookService.BookLoginPanel;
 import com.minkyo.bookManagementClient.bookService.BookMainPanel;
 import com.minkyo.bookManagementClient.bookService.BookRequestBoardPanel;
+import com.minkyo.bookManagementPacket.Member.MemberVO;
 
 import SockNet.NetClient;
 
@@ -28,6 +28,8 @@ public class BookManagementMainFrame extends JFrame {
 	private HashMap<BookPanelType, JPanel> panelByType = new HashMap<>();
 	private JPanel currentShowPanel = null; 
 	
+	private MemberVO myAccountInfo = null;
+	
 	private BookManagementMainFrame() {}
 	
 	public static BookManagementMainFrame getInstance() {
@@ -38,6 +40,14 @@ public class BookManagementMainFrame extends JFrame {
 	
 	public NetClient getNetClient() {
 		return net;
+	}
+	
+	public MemberVO getAccountInfo() {
+		return myAccountInfo;
+	}
+	
+	public void setAccountInfo(MemberVO vo) {
+		myAccountInfo = vo;
 	}
 	
 	public void init() {
@@ -88,6 +98,11 @@ public class BookManagementMainFrame extends JFrame {
 		JPanel changePanel = panelByType.get(panelType);
 		currentShowPanel.setVisible(false);
 		changePanel.setVisible(true);
+		
+		if(panelType == BookPanelType.BookListPanel) {
+			BookListPanel panel = (BookListPanel)changePanel;
+			panel.openEvent();
+		}
 		
 		currentShowPanel = changePanel;
 		this.add(currentShowPanel);

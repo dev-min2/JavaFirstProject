@@ -8,6 +8,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 
 import javax.imageio.ImageIO;
@@ -32,12 +33,45 @@ public class Util {
 			text.setText("");
 		}
 	}
+	
+	public static boolean createLocalDir(String localDirPath)
+	{
+		if(localDirPath.isEmpty())
+			return false;
+		
+		String[] paths = localDirPath.split("\\\\");
+		if(paths.length < 2)
+			return false;
+		
+		try {
+			String defaultDir = paths[0] + "\\" + paths[1];
+			File folder = new File(defaultDir);
+			if(!folder.exists())
+				Files.createDirectory(folder.toPath());
+		
+			if(paths.length > 2) {
+				StringBuilder builder = new StringBuilder(defaultDir);
+				for(int i = 2; i < paths.length; ++i) {
+					builder.append("\\" + paths[i]);
+					folder = new File(builder.toString());
+				
+					if(!folder.exists())
+						Files.createDirectory(folder.toPath());
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return true;
+	}
 
 	public static Image getImageFile(String fileName) {
 		Image image = null;
 
 		// 테스트환경은 하드코딩
-		String imagePath = "C:\\javabookProject\\JavaFirstProject\\bookManagementClient\\src\\main\\resources\\";
+		String imagePath = "C:\\javaFirstPrj\\bookManagementClient\\src\\main\\resources\\";
 		imagePath += fileName;
 		try {
 			java.io.File file = new java.io.File(imagePath);
@@ -45,6 +79,26 @@ public class Util {
 			if(image == null) {
 				//java.io.File file2 = new java.io.File(fileName);
 				image = new ImageIcon(Util.class.getResource(fileName)).getImage();
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return image;
+	}
+	
+	public static Image getImageByFullPath(String path) {
+		Image image = null;
+
+		// 테스트환경은 하드코딩
+		String imagePath = path;
+		try {
+			java.io.File file = new java.io.File(imagePath);
+			image = ImageIO.read(file);
+			if(image == null) {
+				//java.io.File file2 = new java.io.File(fileName);
+				//image = new ImageIcon(Util.class.getResource(fileName)).getImage();
 			}
 		}
 		catch(Exception e) {

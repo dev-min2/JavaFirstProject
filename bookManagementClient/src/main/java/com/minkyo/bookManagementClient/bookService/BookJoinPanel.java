@@ -193,4 +193,5 @@ public class BookJoinPanel extends JPanel {
 		idDuplicateBtn.addActionListener(duplicateBtn_action);
 		signupBtn.addActionListener(signupBtn_action);
 	}
+
 }

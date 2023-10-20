@@ -105,22 +105,9 @@ public class BookLoginPanel extends JPanel {
 					Util.ErrDialog(this, "아이디 혹은 비밀번호 다시입력.", JOptionPane.ERROR_MESSAGE);
 				}
 				else {
+					BookManagementMainFrame.getInstance().setAccountInfo(recvPacket.vo);
 					BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
 				}
-				
-//				ImagePACKET_TEST req2 = new ImagePACKET_TEST();
-//				
-//				BufferedImage bfImage = ImageIO.read(new File("C:\\javabookProject\\JavaFirstProject\\bookManagementClient\\src\\main\\resources\\혼자공부하는자바.jpg"));
-//				ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//		        ImageIO.write(bfImage, "jpg", byteArrayOutputStream);
-//		        
-//		        byte[] compressedData = Utils.compress(byteArrayOutputStream.toByteArray(), Deflater.BEST_COMPRESSION, false);
-//		        
-//		        req2.imageBuffer = compressedData;
-//				
-//				Packet packet2 = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(2, req2));
-//				net.send(packet2);
-//				
 			}
 			catch(Exception e2) {
 				e2.printStackTrace();
@@ -137,4 +124,5 @@ public class BookLoginPanel extends JPanel {
 		loginBtn.addActionListener(loginBtn_action);
 		joinBtn.addActionListener(signupBtn_action);
 	}
+
 }
