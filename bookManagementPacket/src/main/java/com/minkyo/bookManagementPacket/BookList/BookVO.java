@@ -8,7 +8,6 @@ public class BookVO implements Serializable{
 	private String bookTitle;
 	private String bookAuthor;
 	private String bookPublisher;
-	private String bookIntroduce;
 	private String bookImgPath;
 	private Date bookRegistDate;
 	
@@ -35,12 +34,6 @@ public class BookVO implements Serializable{
 	}
 	public void setBookPublisher(String bookPublisher) {
 		this.bookPublisher = bookPublisher;
-	}
-	public String getBookIntroduce() {
-		return bookIntroduce;
-	}
-	public void setBookIntroduce(String bookIntroduce) {
-		this.bookIntroduce = bookIntroduce;
 	}
 	public String getBookImgPath() {
 		return bookImgPath;

@@ -33,7 +33,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
@@ -41,11 +40,15 @@ import com.minkyo.bookManagementClient.bookMain.BookManagementMainFrame;
 import com.minkyo.bookManagementClient.bookMain.BookPanelType;
 import com.minkyo.bookManagementClient.bookMain.Util;
 import com.minkyo.bookManagementPacket.NetError;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_ACK;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_REQ;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
-import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_ACK;
-import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_ACK;
+import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_ACK;
+import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_ACK;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
 import com.minkyo.bookManagementPacket.Member.MemberVO;
@@ -55,14 +58,13 @@ import PacketUtils.Packet;
 import PacketUtils.PacketUtil;
 import SockNet.NetClient;
 
-public class BookListPanel extends JPanel {
+public class BookListPanel extends EventPanel {
 	private BookPanelType pnType;
 	private JButton backBtn = new JButton("돌아가기");
 	
 	private static final int MAX_ONEPAGE_BOOK_COUNT = 20;
 	private static final int MAX_TABLE_ROW_COUNT = 8;
 	private JList bookList = null;
-	private JList bookBackground = null;
 	private List<DefaultListModel> bookModelList = new ArrayList<DefaultListModel>();	
 	private int curModelIndex = 0;
 	
@@ -73,7 +75,7 @@ public class BookListPanel extends JPanel {
 	private JButton bookRefreshBtn = new JButton("⟲");
 	
 	private Map<String,BookVO> bookVOByBookTitle = new HashMap<String, BookVO>(); 
-	private BookInfo selectedBookInfo = null;
+	private BookInfo selectedBookInfo = null;	
 	
 	private boolean isOpenBookRegistDialog = false;
 	
@@ -85,13 +87,12 @@ public class BookListPanel extends JPanel {
 	private JLabel authorLabel = null;
 	private JTextField bookPublisher = null;
 	private JLabel publisherLabel = null;
-	private JTextField bookIntroduce = null;
-	private JLabel introduceLabel = null;
 	private JButton imageChoiceBtn = null;
 	private JButton submitBtn = null;
 	private JLabel imageLabel = new JLabel("이미지 추가");
 	private JFileChooser fileChooser = new JFileChooser();
 	private JButton imgBtn = null; 
+	private JButton returnBookBtn = new JButton("반납하기");
 	
 	//private Map<String>
 	
@@ -107,6 +108,8 @@ public class BookListPanel extends JPanel {
 		
 		bookRentBtn.setBounds(325,660, 225, 50);
 		bookRefreshBtn.setBounds(555, 660, 70, 50);
+		returnBookBtn.setBounds(800,602,100,50);
+		returnBookBtn.setVisible(false);
 		
 		bookRefreshBtn.setFont(new Font("Dialog",Font.BOLD, 18));
 		
@@ -115,13 +118,11 @@ public class BookListPanel extends JPanel {
 		
 		add(backBtn);
 		add(bookList);
-		add(bookBackground);
 		add(bookPrevBtn);
 		add(bookNextBtn);
 		add(bookRentBtn);
-		add(bookRefreshBtn);	
-		
-		this.setComponentZOrder(bookBackground, 3);
+		add(bookRefreshBtn);
+		add(returnBookBtn);
 	}
 	
 	@Override
@@ -133,9 +134,6 @@ public class BookListPanel extends JPanel {
 		bookList = new JList();
 		DefaultListModel model = new DefaultListModel();
 		bookModelList.add(model);
-		bookBackground = new JList();
-		bookBackground.setBounds(720,50,250,600);
-		bookBackground.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		bookList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		bookList.setBounds(250,50,450,600);
@@ -162,21 +160,130 @@ public class BookListPanel extends JPanel {
 			bookList.setModel(bookModelList.get(++curModelIndex));
 		};
 		
+		ActionListener bookRefreshBtnAction = (ActionEvent e) -> {
+			openEvent();
+		};
+		
+		ActionListener bookRentBtnAction = (ActionEvent e) -> {
+			if(selectedBookInfo == null) {
+				Util.ErrDialog(this, "대여할 책을 선택해주세요.", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			
+			if(!selectedBookInfo.isCanRent()) {
+				Util.ErrDialog(this, "이미 대여중인 도서입니다.", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			
+			//대여하기 추가
+			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+			RENT_BOOK_REQ req = new RENT_BOOK_REQ();
+			RENT_BOOK_ACK ack = null;
+			
+			MemberVO thisMember = BookManagementMainFrame.getInstance().getAccountInfo();
+			
+			req.bookNo = selectedBookInfo.getBookNo();
+			req.memberUID = thisMember.getMemberUID();
+			
+			try {
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				
+				ack = (RENT_BOOK_ACK)net.recv();
+				if(ack.netError == NetError.NET_OK) {
+					bookRentBtn.setText("대여중");
+					
+					String text = selectedBookInfo.getBookTitle().getText();
+					String removeFront = text.replace("<html><body>", "");
+					String removeBack = removeFront.replace("</body></html>", "");
+					
+					Util.ErrDialog(this, "대여완료. 도서명 : " + removeBack + ", 대여자 : " + thisMember.getMemberNickName(), JOptionPane.INFORMATION_MESSAGE);
+				}
+				else if(ack.netError == NetError.NET_ALREADY_RENT_BOOK) {
+					Util.ErrDialog(this, "대여중인 도서 입니다.", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+			catch(Exception e2) {
+				e2.printStackTrace();
+				return;
+			}
+			
+		};
+		
+		ActionListener returnBookBtnAction = (ActionEvent e) -> {
+			if(selectedBookInfo == null) {
+				Util.ErrDialog(this, "도서 선택을 하지않았습니다.", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			if(selectedBookInfo.getRentNo() <= 0) {
+				Util.ErrDialog(this, "반납이 불가능한 도서입니다.", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			MemberVO thisMember = BookManagementMainFrame.getInstance().getAccountInfo();
+			if(selectedBookInfo.getRentMemberUID() != thisMember.getMemberUID()) {
+				Util.ErrDialog(this, "대여자만 반납이 가능합니다.", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+			RETURN_BOOK_REQ req = new RETURN_BOOK_REQ();
+			RETURN_BOOK_ACK ack = null;
+			
+			req.rentNo = selectedBookInfo.getRentNo();
+			try {
+				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+				net.send(packet);
+				
+				ack = (RETURN_BOOK_ACK)net.recv();
+				if(ack.netError == NetError.NET_OK) {
+					bookRentBtn.setText("대여 가능");
+					returnBookBtn.setVisible(false);
+					
+					String text = selectedBookInfo.getBookTitle().getText();
+					String removeFront = text.replace("<html><body>", "");
+					String removeBack = removeFront.replace("</body></html>", "");
+					
+					Util.ErrDialog(this, "반납완료. 도서명 : " + removeBack + ", 대여자 : " + thisMember.getMemberNickName(), JOptionPane.INFORMATION_MESSAGE);
+				}
+				else if(ack.netError == NetError.NET_ALREADY_RENT_BOOK) {
+					Util.ErrDialog(this, "대여중인 도서 입니다.", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+			catch(Exception e2) {
+				e2.printStackTrace();
+				return;
+			}
+		};
+		
 		MouseListener mouseListener = new MouseAdapter() {
 			@Override
-		    public void mouseClicked(MouseEvent e) {
-		        if(e.getClickCount() >= 1) {
-		           String selectedItem = (String) bookList.getSelectedValue();
-		           //DefaultListModel model = (DefaultListModel) bookList.getModel();
+		    public void mousePressed(MouseEvent e) {
+				String selectedItem = (String) bookList.getSelectedValue();
+		        
+				if(selectedBookInfo != null) {
+					String text = selectedBookInfo.getBookTitle().getText();
+					String removeFront = text.replace("<html><body>", "");
+					String removeBack = removeFront.replace("</body></html>", "");
+					
+					if(selectedItem.equals(removeBack))
+						return;
+				}
 		           
-		           if(!bookVOByBookTitle.containsKey(selectedItem)) {
-		        	   Util.ErrDialog(BookListPanel.this, "존재하지 않는 책정보를 선택", JOptionPane.ERROR_MESSAGE);
-		        	   return;
-		           }
-		           
-		           BookVO bookVO = bookVOByBookTitle.get(selectedItem);
-		           setBookInfo(bookVO);
+		        if(!bookVOByBookTitle.containsKey(selectedItem)) {
+		        	Util.ErrDialog(BookListPanel.this, "존재하지 않는 책정보를 선택", JOptionPane.ERROR_MESSAGE);
+		        	return;
 		        }
+		           
+		        BookVO bookVO = bookVOByBookTitle.get(selectedItem);
+		        selectedBookInfo = setBookInfo(bookVO);
+		        
+		        // 만약 대여중인 사람이 자기자신이라면. 반납버튼을 띄운다.
+		        if(selectedBookInfo.getRentMemberUID() == BookManagementMainFrame.getInstance().getAccountInfo().getMemberUID())
+		        	returnBookBtn.setVisible(true);
+		        else
+		        	returnBookBtn.setVisible(false);
 		    }
 		};
 		
@@ -184,6 +291,9 @@ public class BookListPanel extends JPanel {
 		backBtn.addActionListener(backBtnAction);
 		bookPrevBtn.addActionListener(bookPrevBtnAction);
 		bookNextBtn.addActionListener(bookNextBtnAction);
+		bookRentBtn.addActionListener(bookRentBtnAction);
+		bookRefreshBtn.addActionListener(bookRefreshBtnAction);
+		returnBookBtn.addActionListener(returnBookBtnAction);
 	}
 	
 	private void initRegistBookDialog() {
@@ -198,8 +308,6 @@ public class BookListPanel extends JPanel {
 		authorLabel = new JLabel("저자:");
 		bookPublisher = new JTextField();
 		publisherLabel = new JLabel("출판사:");
-		bookIntroduce = new JTextField();
-		introduceLabel = new JLabel("소개글:");
 		imageChoiceBtn = new JButton("imageChoiceBtn!");
 		submitBtn = new JButton("등록");
 		imageLabel = new JLabel("이미지 추가");
@@ -272,10 +380,10 @@ public class BookListPanel extends JPanel {
 		dialog.add(bookPublisher);
 		dialog.add(publisherLabel);
 		
-		bookIntroduce.setBounds(120,140, 300, 20);
-		introduceLabel.setBounds(75,133, 100, 30);
-		dialog.add(bookIntroduce);
-		dialog.add(introduceLabel);
+//		bookIntroduce.setBounds(120,140, 300, 20);
+//		introduceLabel.setBounds(75,133, 100, 30);
+//		dialog.add(bookIntroduce);
+//		dialog.add(introduceLabel);
 		
 		imageLabel.setBounds(51, 163, 100, 30);
 
@@ -311,7 +419,6 @@ public class BookListPanel extends JPanel {
 			req.bookTitle = bookTitle.getText();
 			req.bookAuthor = bookAuthor.getText();
 			req.bookPublisher = bookPublisher.getText();
-			req.bookIntroduce = bookIntroduce.getText();
 			
 			Image img = Util.iconToImage(imgBtn.getIcon());
 			BufferedImage bi = new BufferedImage(img.getWidth(null),img.getHeight(null),BufferedImage.TYPE_INT_RGB);
@@ -356,7 +463,6 @@ public class BookListPanel extends JPanel {
 		bookTitle.setText("");
 		bookAuthor.setText("");
 		bookPublisher.setText("");
-		bookIntroduce.setText("");
 		imgBtn.setVisible(false);
 	}
 	
@@ -366,7 +472,6 @@ public class BookListPanel extends JPanel {
 			this.remove(selectedBookInfo.getBookAuthor());
 			this.remove(selectedBookInfo.getBookImg());
 			this.remove(selectedBookInfo.getBookPublisher());
-			this.remove(selectedBookInfo.getBookIntroduce());
 //			this.remove(selectedBookInfo.getHistoryTable());
 //			this.remove(selectedBookInfo.getHistoryNextBtn());
 //			this.remove(selectedBookInfo.getHistoryPrevBtn());
@@ -388,43 +493,65 @@ public class BookListPanel extends JPanel {
 				return null;
 		}
 		
+		NetClient net = BookManagementMainFrame.getInstance().getNetClient();
+		ADDITIONAL_BOOK_INFO_REQ req = new ADDITIONAL_BOOK_INFO_REQ();
+		ADDITIONAL_BOOK_INFO_ACK ack = null;
+		
+		req.bookNo = bookVO.getBookNo();
+		req.bookTitle = bookVO.getBookTitle();
+		
 		localPath += "\\" + bookVO.getBookTitle() + ".jpg";
 		if(!Util.existFile(localPath)) {
-			// 없으면 이미지 요청
-			NetClient net = BookManagementMainFrame.getInstance().getNetClient();
-			try {
-				BOOK_IMAGE_REQ req = new BOOK_IMAGE_REQ();
-				BOOK_IMAGE_ACK ack = null;
-				
-				req.bookNo = bookVO.getBookNo();
-				req.bookTitle = bookVO.getBookTitle();
-				
-				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
-				net.send(packet);
-				ack = (BOOK_IMAGE_ACK)net.recv();
-				if(ack.netError != NetError.NET_OK) {
-					return null;
-				}
-				
+			req.existImageFile = false; // 없으면 이미지 요청.
+		}
+		else { 
+			bookImage = Util.getImageByFullPath(localPath);
+			if(bookImage == null)
+				return null;
+			
+			req.existImageFile = true;
+		}
+		
+		try {
+			Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
+			net.send(packet);
+			ack = (ADDITIONAL_BOOK_INFO_ACK)net.recv();
+			if(ack.netError != NetError.NET_OK) {
+				return null;
+			}
+
+			if(!req.existImageFile) {
 				byte[] decompressedData = Utils.decompress(ack.imageBuffer, false);
 				BufferedImage image = ImageIO.read(new ByteArrayInputStream(decompressedData));
 
 				File outputfile = new File(localPath);
 				if(!ImageIO.write(image, "jpg", outputfile))
 					return null;
-				
+
 				bookImage = ImageIO.read(new File(localPath));
 			}
-			catch(Exception e) {
-				e.printStackTrace();
-				return null;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		if(!ack.canRentBook) {
+			if(ack.rentMemberUID == BookManagementMainFrame.getInstance().getAccountInfo().getMemberUID()) {
+				bookRentBtn.setText("대여중");
 			}
+			else {
+				bookRentBtn.setText("대여불가");
+			}
+			
+			newBook.setRentMemberUID(ack.rentMemberUID);
+			newBook.setCanRent(false);
 		}
-		else { 
-			bookImage = Util.getImageByFullPath(localPath);
-			if(bookImage == null)
-				return null;
+		else {
+			bookRentBtn.setText("대여 가능");
+			newBook.setCanRent(true);
 		}
+		
 		Icon icon = Util.resize(
 				new ImageIcon(bookImage), 
 				imgBtn.getWidth(),
@@ -434,42 +561,40 @@ public class BookListPanel extends JPanel {
 
 		newBook.setBookImg(imgBtn);
 		newBook.setBookNo(bookVO.getBookNo());
+		newBook.setRentNo(ack.rentNo);
 		
 		Font font = new Font("Serif",Font.PLAIN, 16);
 		
-		JLabel bookTitleLabel = new JLabel(bookVO.getBookTitle());
-		bookTitleLabel.setBounds(750, 310, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		JLabel bookTitleLabel = new JLabel("<html><body>" + bookVO.getBookTitle() + "</body></html>");
+		bookTitleLabel.setBounds(750, 300, BookInfo.DEFAULT_LABEL_WIDTH + 40, BookInfo.DEFAULT_LABEL_HEIGHT + 10);
 		bookTitleLabel.setFont(new Font("Serif", Font.BOLD, 16));
 		newBook.setBookTitle(bookTitleLabel);
 		
-		JLabel bookAuthorLabel = new JLabel("저자 : " + bookVO.getBookAuthor());
-		bookAuthorLabel.setBounds(750, 340, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		JLabel bookAuthorLabel = new JLabel("<html><body>" + "저자 : " + bookVO.getBookAuthor() + "</body></html>");
+		bookAuthorLabel.setBounds(750, 335, BookInfo.DEFAULT_LABEL_WIDTH + 40, BookInfo.DEFAULT_LABEL_HEIGHT + 30);
 		bookAuthorLabel.setFont(font);
 		newBook.setBookAuthor(bookAuthorLabel);
 		
 		JLabel bookPublisherLabel = new JLabel("출판사 : " + bookVO.getBookPublisher());
-		bookPublisherLabel.setBounds(750, 370, BookInfo.DEFAULT_LABEL_WIDTH, BookInfo.DEFAULT_LABEL_HEIGHT);
+		bookPublisherLabel.setBounds(750, 390, BookInfo.DEFAULT_LABEL_WIDTH + 40, BookInfo.DEFAULT_LABEL_HEIGHT);
 		bookPublisherLabel.setFont(font);
 		newBook.setBookPublisher(bookPublisherLabel);
 		
-		JLabel bookIntroduceLabel = new JLabel("<html><body>" + bookVO.getBookIntroduce() + "</body></html>");
-		bookIntroduceLabel.setBounds(750, 400, BookInfo.DEFAULT_LABEL_WIDTH + 50, 600);
-		bookIntroduceLabel.setFont(font);
-		newBook.setBookIntroduce(bookIntroduceLabel);
-		
-		add(imgBtn);
-		add(bookTitleLabel);
-		add(bookAuthorLabel);
-		add(bookPublisherLabel);
-		add(bookIntroduceLabel);
+		this.add(newBook.getBookImg());
+		this.add(newBook.getBookTitle());
+		this.add(newBook.getBookAuthor());
+		this.add(newBook.getBookPublisher());
 //		
-		this.setComponentZOrder(imgBtn, 5);
-		this.setComponentZOrder(bookTitleLabel, 5);
-		this.setComponentZOrder(bookAuthorLabel, 5);
-		this.setComponentZOrder(bookPublisherLabel, 5);
-		this.setComponentZOrder(bookIntroduceLabel, 5);
+		this.setComponentZOrder(newBook.getBookImg(), 5);
+		this.setComponentZOrder(newBook.getBookTitle(), 5);
+		this.setComponentZOrder(newBook.getBookAuthor(), 5);
+		this.setComponentZOrder(newBook.getBookPublisher(), 5);
 		
-
+		BookManagementMainFrame.getInstance().repaint();
+		this.repaint();
+		//bookBackground.setVisible(true);
+		
+		//bookBackground.setVisible(true);
 //		
 //		String[] header = {"이름","대여날짜","반납날짜"};
 //		String[][] contents = { 
@@ -518,7 +643,6 @@ public class BookListPanel extends JPanel {
 //		this.setComponentZOrder(historyTable, 4);
 //		this.setComponentZOrder(historyTable.getTableHeader(), 4);
 		
-		selectedBookInfo = newBook;
 		return newBook;
 	}
 	
@@ -532,8 +656,15 @@ public class BookListPanel extends JPanel {
 					return;
 				}
 				
-				imgBtn.setIcon(Util.resize(new ImageIcon(image), 140, 170));
-				imgBtn.setVisible(true);
+				String fileName = file.getName();
+				String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+				if(fileExtension.equals("jpg") || fileExtension.equals("jpeg")) {
+					imgBtn.setIcon(Util.resize(new ImageIcon(image), 140, 170));
+					imgBtn.setVisible(true);
+				}
+				else {
+					Util.ErrDialog(this, "jpg확장자 파일만 업로드 가능합니다.", JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
 			catch(Exception e) {
 				e.printStackTrace();

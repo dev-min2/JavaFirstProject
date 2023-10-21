@@ -4,17 +4,17 @@ import java.io.Serializable;
 import java.sql.Date;
 
 public class MemberVO implements Serializable {
-	private long memberUID;
+	private int memberUID;
 	private String memberID;
 	private String memberPassword;
 	private String memberEmail;
 	private String memberNickName;
 	private boolean isAdmin;
 	private Date memberCreateDate;
-	public long getMemberUID() {
+	public int getMemberUID() {
 		return memberUID;
 	}
-	public void setMemberUID(long memberUID) {
+	public void setMemberUID(int memberUID) {
 		this.memberUID = memberUID;
 	}
 	public String getMemberID() {
@@ -53,6 +53,4 @@ public class MemberVO implements Serializable {
 	public void setMemberCreateDate(Date memberCreateDate) {
 		this.memberCreateDate = memberCreateDate;
 	}
-
-	
 }

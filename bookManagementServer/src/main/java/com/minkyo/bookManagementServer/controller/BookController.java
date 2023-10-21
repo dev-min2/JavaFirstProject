@@ -3,11 +3,15 @@ package com.minkyo.bookManagementServer.controller;
 import java.util.List;
 
 import com.minkyo.bookManagementPacket.NetError;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_ACK;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_REQ;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
-import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_ACK;
-import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_ACK;
+import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_ACK;
+import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_ACK;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
 import com.minkyo.bookManagementServer.service.BookService;
@@ -43,7 +47,7 @@ public class BookController {
 	}
 	
 	@RequestMapping("SELECT_ALL_BOOK_DATA_REQ")
-	public Packet selectAllBook(Packet requestPacket, MessageInfo msgInfo) {
+	public Packet requestAllBook(Packet requestPacket, MessageInfo msgInfo) {
 		SELECT_ALL_BOOK_DATA_REQ reqPacket = (SELECT_ALL_BOOK_DATA_REQ)requestPacket;
 		SELECT_ALL_BOOK_DATA_ACK ackPacket = new SELECT_ALL_BOOK_DATA_ACK();
 		ackPacket.netError = NetError.NET_FAIL;
@@ -60,21 +64,47 @@ public class BookController {
 		return ackPacket;
 	}
 	
-	@RequestMapping("BOOK_IMAGE_REQ")
-	public Packet requestBookImage(Packet requestPacket, MessageInfo msgInfo) {
-		BOOK_IMAGE_REQ reqPacket = (BOOK_IMAGE_REQ)requestPacket;
-		BOOK_IMAGE_ACK ackPacket = new BOOK_IMAGE_ACK();
+	@RequestMapping("ADDITIONAL_BOOK_INFO_REQ")
+	public Packet requestOneBookInfo(Packet requestPacket, MessageInfo msgInfo) {
+		ADDITIONAL_BOOK_INFO_REQ reqPacket = (ADDITIONAL_BOOK_INFO_REQ)requestPacket;
+		ADDITIONAL_BOOK_INFO_ACK ackPacket = new ADDITIONAL_BOOK_INFO_ACK();
 		ackPacket.netError = NetError.NET_FAIL;
 		
 		if(msgInfo.getParameter("login") == null)
 			return ackPacket;
 		
-		byte[] imageBuffer = bookService.getImageBuffer(reqPacket);
-		if(imageBuffer != null) {
+		if(bookService.getAdditionalBookInfo(reqPacket,ackPacket)) {
 			ackPacket.netError = NetError.NET_OK;
-			ackPacket.imageBuffer = imageBuffer;
 		}
 		
+		return ackPacket;
+	}
+	
+	@RequestMapping("RENT_BOOK_REQ")
+	public Packet requestRentBook(Packet requestPacket, MessageInfo msgInfo) {
+		RENT_BOOK_REQ reqPacket = (RENT_BOOK_REQ)requestPacket;
+		RENT_BOOK_ACK ackPacket = new RENT_BOOK_ACK();
+		ackPacket.netError = NetError.NET_FAIL;
+		
+		if(msgInfo.getParameter("login") == null)
+			return ackPacket;
+		
+		ackPacket.netError = bookService.rentBook(reqPacket);
+		return ackPacket;
+	}
+	
+	@RequestMapping("RETURN_BOOK_REQ")
+	public Packet requestReturnBook(Packet requestPacket, MessageInfo msgInfo) {
+		RETURN_BOOK_REQ reqPacket = (RETURN_BOOK_REQ)requestPacket;
+		RETURN_BOOK_ACK ackPacket = new RETURN_BOOK_ACK();
+		ackPacket.netError = NetError.NET_FAIL;
+		
+		if(msgInfo.getParameter("login") == null)
+			return ackPacket;
+		
+		if(bookService.returnBook(reqPacket)) {
+			ackPacket.netError = NetError.NET_OK;
+		}
 		return ackPacket;
 	}
 }

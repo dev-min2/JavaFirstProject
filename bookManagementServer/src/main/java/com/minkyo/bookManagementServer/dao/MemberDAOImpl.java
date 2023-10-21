@@ -29,7 +29,7 @@ public class MemberDAOImpl implements MemberDAO {
 				nextVal = rs.getInt(1);
 			}
 			
-			pstmt.setLong(1, nextVal);
+			pstmt.setInt(1, nextVal);
 			pstmt.setString(2, vo.getMemberID());
 			pstmt.setString(3, vo.getMemberPassword());
 			pstmt.setString(4, vo.getMemberEmail());

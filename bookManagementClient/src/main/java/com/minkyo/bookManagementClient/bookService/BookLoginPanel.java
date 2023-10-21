@@ -32,7 +32,7 @@ import PacketUtils.PacketUtil;
 import SockNet.NetClient;
 
 
-public class BookLoginPanel extends JPanel {
+public class BookLoginPanel extends EventPanel {
 	private JButton loginBtn = new JButton("로그인");
 	private JButton joinBtn = new JButton("회원가입");
 	private JLabel titleLabel = new JLabel("예담 도서관리 프로그램");
@@ -123,6 +123,12 @@ public class BookLoginPanel extends JPanel {
 		
 		loginBtn.addActionListener(loginBtn_action);
 		joinBtn.addActionListener(signupBtn_action);
+	}
+
+	@Override
+	public void openEvent() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

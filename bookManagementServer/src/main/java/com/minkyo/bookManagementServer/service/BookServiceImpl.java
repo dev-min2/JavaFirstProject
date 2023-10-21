@@ -4,15 +4,22 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.sql.Date;
+import java.util.AbstractMap;
 import java.util.List;
 import java.util.zip.Deflater;
 
 import javax.imageio.ImageIO;
 
+import com.minkyo.bookManagementPacket.NetError;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_ACK;
+import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_REQ;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
-import com.minkyo.bookManagementPacket.BookList.BOOK_IMAGE_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
+import com.minkyo.bookManagementPacket.bookHistory.RentBookVO;
 import com.minkyo.bookManagementServer.dao.BookDAO;
 import com.minkyo.bookManagementServer.dao.BookDAOImpl;
 
@@ -59,8 +66,6 @@ public class BookServiceImpl implements BookService {
 			vo.setBookTitle(packet.bookTitle);
 			vo.setBookAuthor(packet.bookAuthor);
 			vo.setBookPublisher(packet.bookPublisher);
-			if(packet.bookIntroduce != null && !packet.bookIntroduce.isBlank())
-				vo.setBookIntroduce(packet.bookIntroduce);
 			vo.setBookImgPath(savePath);
 			
 			ret = dao.insertBook(vo);
@@ -78,31 +83,68 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public byte[] getImageBuffer(BOOK_IMAGE_REQ packet) {
+	public boolean getAdditionalBookInfo(ADDITIONAL_BOOK_INFO_REQ packet, ADDITIONAL_BOOK_INFO_ACK ackPacket) {
 		if(packet.bookNo <= 0 || packet.bookTitle == null || packet.bookTitle.isEmpty())
-			return null;
+			return false;
 		
-		BookVO vo = dao.selectOneBook(packet.bookNo, packet.bookTitle);
-		if(vo == null)
-			return null;
-		
-		String imagePath = vo.getBookImgPath();
-		File imgFile = new File(imagePath);
-		if(!imgFile.exists())
-			return null;
-		
+		AbstractMap.SimpleEntry<BookVO, RentBookVO> ret = dao.selectOneBook(packet.bookNo, packet.bookTitle);
+		if(ret == null)
+			return false;
+
 		byte[] retImageBuffer = null;
-		try {
-			BufferedImage bfImg =ImageIO.read(imgFile);
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(bfImg, "jpg", baos);
+		if(!packet.existImageFile) {
+			String imagePath = ret.getKey().getBookImgPath();
+			File imgFile = new File(imagePath);
+			if(!imgFile.exists())
+				return false;
+	
+			try {
+				BufferedImage bfImg =ImageIO.read(imgFile);
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				ImageIO.write(bfImg, "jpg", baos);
 			
-			retImageBuffer = Utils.compress(baos.toByteArray(), Deflater.BEST_COMPRESSION, false);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
+				retImageBuffer = Utils.compress(baos.toByteArray(), Deflater.BEST_COMPRESSION, false);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 		
-		return retImageBuffer;
+		if(ret.getValue() != null) {
+			ackPacket.canRentBook = false;
+			ackPacket.rentMemberUID = ret.getValue().getMemberUID();
+			ackPacket.rentNo = ret.getValue().getBookNo();
+		}
+		else {
+			ackPacket.canRentBook = true;
+		}
+		
+		ackPacket.imageBuffer = retImageBuffer;
+		return true;
+	}
+	
+	@Override
+	public NetError rentBook(RENT_BOOK_REQ packet) {
+		if(packet.bookNo < 0 || packet.memberUID < 0)
+			return NetError.NET_FAIL;
+		
+		// 이미 누군가가 Rent했다면
+		if(dao.existRentBook(packet.bookNo)) {
+			return NetError.NET_ALREADY_RENT_BOOK;
+		}
+		
+		Date rentDate = new Date(System.currentTimeMillis());
+		if(!dao.insertRentBook(packet.memberUID, packet.bookNo,rentDate)) {
+			return NetError.NET_FAIL;
+		}
+
+		return NetError.NET_OK;
+	}
+
+	@Override
+	public boolean returnBook(RETURN_BOOK_REQ packet) {
+		// TODO Auto-generated method stub
+	
+		return dao.deleteRentBook(packet.rentNo);
 	}
 }

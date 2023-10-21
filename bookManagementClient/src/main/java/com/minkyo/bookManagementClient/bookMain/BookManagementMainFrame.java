@@ -14,6 +14,7 @@ import com.minkyo.bookManagementClient.bookService.BookListPanel;
 import com.minkyo.bookManagementClient.bookService.BookLoginPanel;
 import com.minkyo.bookManagementClient.bookService.BookMainPanel;
 import com.minkyo.bookManagementClient.bookService.BookRequestBoardPanel;
+import com.minkyo.bookManagementClient.bookService.EventPanel;
 import com.minkyo.bookManagementPacket.Member.MemberVO;
 
 import SockNet.NetClient;
@@ -81,7 +82,7 @@ public class BookManagementMainFrame extends JFrame {
 	public void changePanel(BookPanelType panelType) {
 		this.remove(currentShowPanel);
 		
-		JPanel changePanel = null;
+		EventPanel changePanel = null;
 		switch(panelType) {
 			case LoginPanel:
 				changePanel = new BookLoginPanel(panelType);
@@ -100,15 +101,13 @@ public class BookManagementMainFrame extends JFrame {
 				break;
 			default:
 				Util.ErrDialog(inst, "없는 패널 타입으로 전환시도", JOptionPane.ERROR_MESSAGE);
+				return;
 		}
 		
 		currentShowPanel = changePanel;
 		currentShowPanel.setVisible(true);
 		
-		if(panelType == BookPanelType.BookListPanel) {
-			BookListPanel panel = (BookListPanel)changePanel;
-			panel.openEvent();
-		}
+		changePanel.openEvent();
 		
 		currentShowPanel = changePanel;
 		this.add(currentShowPanel);

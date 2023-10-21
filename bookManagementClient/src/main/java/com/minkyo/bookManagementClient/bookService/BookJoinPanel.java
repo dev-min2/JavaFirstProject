@@ -27,7 +27,7 @@ import PacketUtils.Packet;
 import PacketUtils.PacketUtil;
 import SockNet.NetClient;
 
-public class BookJoinPanel extends JPanel {
+public class BookJoinPanel extends EventPanel {
 	private BookPanelType pnType;
 	private static final long serialVersionUID = 1L;
 	private JButton idDuplicateBtn = new JButton("아이디 중복검사");
@@ -37,7 +37,7 @@ public class BookJoinPanel extends JPanel {
 	private JLabel pwdLabel = new JLabel("비밀번호");
 	private JLabel pwdVerifyLabel = new JLabel("비밀번호 확인");
 	private JLabel emailLabel = new JLabel("이메일");
-	private JLabel nickNameLabel = new JLabel("닉네임");
+	private JLabel nickNameLabel = new JLabel("이름");
 	private JTextField idTextField = new JTextField(20);
 	private JPasswordField passwordTextField = new JPasswordField(20);
 	private JPasswordField passwordVerifyTextField = new JPasswordField(20);
@@ -188,6 +188,12 @@ public class BookJoinPanel extends JPanel {
 		prevBtn.addActionListener(prevBtn_action);
 		idDuplicateBtn.addActionListener(duplicateBtn_action);
 		signupBtn.addActionListener(signupBtn_action);
+	}
+
+	@Override
+	public void openEvent() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

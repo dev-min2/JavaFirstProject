@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import com.minkyo.bookManagementClient.bookMain.BookManagementMainFrame;
 import com.minkyo.bookManagementClient.bookMain.BookPanelType;
 
-public class BookRequestBoardPanel extends JPanel {
+public class BookRequestBoardPanel extends EventPanel {
 	private BookPanelType pnType;
 	
 	public BookRequestBoardPanel(BookPanelType pnType) {
@@ -21,5 +21,11 @@ public class BookRequestBoardPanel extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		g.drawImage(BookManagementMainFrame.colorBackgroundImage,0,0, null);
+	}
+
+	@Override
+	public void openEvent() {
+		// TODO Auto-generated method stub
+		
 	}
 }

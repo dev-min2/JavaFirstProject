@@ -29,7 +29,7 @@ import com.minkyo.bookManagementClient.bookMain.Util;
  // footer에는 요청게시판과 조회게시판
  */
 
-public class BookMainPanel extends JPanel {
+public class BookMainPanel extends EventPanel {
 	private BookPanelType pnType;
 	private JButton requestBoardBtn = new RoundedButton("도서 요청 게시판");
 	private JButton rentBoardBtn = new JButton("도서 조회 게시판");
@@ -105,6 +105,12 @@ public class BookMainPanel extends JPanel {
 		
 		requestBoardBtn.addActionListener(request_board_action);
 		rentBoardBtn.addActionListener(rent_board_action);
+	}
+
+	@Override
+	public void openEvent() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

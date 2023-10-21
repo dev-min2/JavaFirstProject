@@ -14,10 +14,12 @@ public class BookInfo {
 	public static final int DEFAULT_LABEL_HEIGHT = 30;
 	
 	private JButton bookImg = null;
+	private int rentMemberUID = 0; // rent한 Member의 UID;
 	private int bookNo = 0;
+	private int rentNo = 0;
+	private boolean canRent = false;
 	private JLabel bookTitle = null;
 	private JLabel bookAuthor = null;
-	private JLabel bookIntroduce = null;
 	private JLabel bookPublisher = null;
 	private JTable historyTable = null;
 	
@@ -40,9 +42,13 @@ public class BookInfo {
 	public void setBookTitle(JLabel label) { bookTitle = label; }
 	public JLabel getBookAuthor() { return bookAuthor; }
 	public void setBookAuthor(JLabel label) { bookAuthor = label; }
-	public JLabel getBookIntroduce() { return bookIntroduce; }
-	public void setBookIntroduce(JLabel label) { bookIntroduce = label; }
 	public JLabel getBookPublisher() { return bookPublisher; }
 	public void setBookPublisher(JLabel label) { bookPublisher = label; } 
+	public boolean isCanRent() { return canRent; }
+	public void setCanRent(boolean canRent) { this.canRent = canRent; }
+	public int getRentMemberUID() { return rentMemberUID; }
+	public void setRentMemberUID(int rentMemberUID) { this.rentMemberUID = rentMemberUID; }
+	public int getRentNo() { return rentNo; }
+	public void setRentNo(int rentNo) { this.rentNo = rentNo; }
 	
 }

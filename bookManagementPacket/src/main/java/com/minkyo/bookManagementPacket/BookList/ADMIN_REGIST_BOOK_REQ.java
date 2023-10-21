@@ -10,6 +10,5 @@ public class ADMIN_REGIST_BOOK_REQ extends Packet implements Serializable {
 	public String bookTitle;
 	public String bookAuthor;
 	public String bookPublisher;
-	public String bookIntroduce;
 	public byte[] imageBuffer;
 }
