@@ -645,12 +645,12 @@ public class BookListPanel extends EventPanel {
 			ack = (SELECT_ALL_BOOK_DATA_ACK)net.recv();
 			if(ack.netError == NetError.NET_OK && ack.bookList.size() > 0) {
 				for(int i = 0; i < ack.bookList.size(); ++i) {
-					if((i % 20 == 0) && i != 0) {
+					if((i % 19 == 0) && i != 0) {
 						curModelIndex += 1;
 						DefaultListModel model = new DefaultListModel();
 						bookModelList.add(model);
 					}
-					int colIndex = i % 20;
+					int colIndex = i % 19;
 					
 					BookVO bookVO = ack.bookList.get(i);
 					bookModelList.get(curModelIndex).add(colIndex, bookVO.getBookTitle());

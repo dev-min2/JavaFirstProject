@@ -78,8 +78,8 @@ public class BookMainPanel extends EventPanel {
 		rentBoardBtn.setBounds(400,70, 200, 250);
 		logoutBtn.setBounds(880, 10, 100, 50);
 	
-		rentBookPrevBtn.setBounds(180,660,45,45);
-		rentBookNextBtn.setBounds(800,660,45,45);
+		rentBookPrevBtn.setBounds(180,660,50,50);
+		rentBookNextBtn.setBounds(800,660,50,50);
 		
 		nickNameLabel.setBounds(670,100, 100, 60);
 		nickNameLabel.setFont(new Font("Serif", Font.BOLD, 26));
