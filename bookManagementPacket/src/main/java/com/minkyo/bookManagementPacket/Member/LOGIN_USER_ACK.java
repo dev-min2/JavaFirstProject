@@ -1,5 +1,8 @@
 package com.minkyo.bookManagementPacket.Member;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import com.minkyo.bookManagementPacket.NetError;
@@ -9,8 +12,20 @@ import PacketUtils.Packet;
 
 @AckInfo("2")
 public class LOGIN_USER_ACK extends Packet implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2002L;
 	public NetError netError;
 	public MemberVO vo;
 	
-	// 기타 필요한 데이터
+	private void writeObject(ObjectOutputStream out) throws IOException
+	{
+		out.defaultWriteObject(); // defaultWriteObject는 현재 자신 클래스의 멤버를 자동으로 직렬화
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject(); // defaultReadObject는 현재 자신 클래스의 멤버를 자동으로 역직렬화
+	}
 }

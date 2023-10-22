@@ -429,8 +429,8 @@ public class BookListPanel extends EventPanel {
 			ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 			try {
 				ImageIO.write(bi, "jpg", byteArrayOutputStream);
-				byte[] compressedData = Utils.compress(byteArrayOutputStream.toByteArray(), Deflater.BEST_COMPRESSION, false);
-				req.imageBuffer = compressedData;
+				//byte[] compressedData = Utils.compress(byteArrayOutputStream.toByteArray(), Deflater.BEST_COMPRESSION, false);
+				req.imageBuffer = byteArrayOutputStream.toByteArray();
 				
 				Packet packet = PacketUtil.convertPacketFromBytes(PacketUtil.genPacketBuffer(1, req));
 				net.send(packet);
@@ -517,8 +517,8 @@ public class BookListPanel extends EventPanel {
 			}
 
 			if(!req.existImageFile) {
-				byte[] decompressedData = Utils.decompress(ack.imageBuffer, false);
-				BufferedImage image = ImageIO.read(new ByteArrayInputStream(decompressedData));
+				//byte[] decompressedData = Utils.decompress(ack.imageBuffer, false);
+				BufferedImage image = ImageIO.read(new ByteArrayInputStream(ack.imageBuffer));
 
 				File outputfile = new File(localPath);
 				if(!ImageIO.write(image, "jpg", outputfile))

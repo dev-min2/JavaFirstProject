@@ -1,10 +1,17 @@
 package com.minkyo.bookManagementPacket.bookHistory;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Timestamp;
 
 public class RentBookVO implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 14001L;
 	private int rentNo;
 	private int memberUID;
 	private int bookNo;
@@ -35,5 +42,14 @@ public class RentBookVO implements Serializable {
 		this.rentDate = rentDate;
 	}
 	
+	private void writeObject(ObjectOutputStream out) throws IOException
+	{
+		out.defaultWriteObject(); // defaultWriteObject는 현재 자신 클래스의 멤버를 자동으로 직렬화
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject(); // defaultReadObject는 현재 자신 클래스의 멤버를 자동으로 역직렬화
+	}
 	
 }

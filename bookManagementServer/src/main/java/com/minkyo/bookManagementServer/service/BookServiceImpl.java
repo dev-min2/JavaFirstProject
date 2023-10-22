@@ -56,8 +56,8 @@ public class BookServiceImpl implements BookService {
 			return ret;
 		
 		try {
-			byte[] decompressedData = Utils.decompress(packet.imageBuffer, false);
-			BufferedImage image = ImageIO.read(new ByteArrayInputStream(decompressedData));
+			//byte[] decompressedData = Utils.decompress(packet.imageBuffer, false);
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(packet.imageBuffer));
 		
 			// 이미지 읽고, 저장은 잘된다.
 			// 이미지 파일은 책 리스트 조회떄에 우선 이미지를 제외한 리스트만 받아감.
@@ -110,7 +110,7 @@ public class BookServiceImpl implements BookService {
 				ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				ImageIO.write(bfImg, "jpg", baos);
 			
-				retImageBuffer = Utils.compress(baos.toByteArray(), Deflater.BEST_COMPRESSION, false);
+				retImageBuffer = baos.toByteArray();
 			}
 			catch(Exception e) {
 				e.printStackTrace();

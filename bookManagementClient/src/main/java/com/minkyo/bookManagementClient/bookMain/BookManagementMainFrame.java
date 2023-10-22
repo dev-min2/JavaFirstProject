@@ -54,7 +54,7 @@ public class BookManagementMainFrame extends JFrame {
 	public void init() throws IOException {
 		try {
 			// 연결한 IP(도메인주소)와 Port번호를 입력.
-			net.startToConnect("localhost", 9999);
+			net.startToConnect("min.ddnsking.com", 9999);
 		}
 		catch(Exception e) {
 			String error = "네트워크 연결에 실패했습니다." + e.getMessage();
