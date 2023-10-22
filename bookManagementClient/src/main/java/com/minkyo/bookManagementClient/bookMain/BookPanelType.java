@@ -5,5 +5,5 @@ public enum BookPanelType {
 	JoinPanel,
 	MainPanel,
 	BookListPanel,
-	BookRequestBoardPanel
+	BookHistoryPanel
 }

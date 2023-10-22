@@ -1,37 +1,44 @@
 package com.minkyo.bookManagementPacket.bookHistory;
 
 import java.io.Serializable;
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class BookHistoryVO implements Serializable {
 	public int bookNo;
-	public int userUID;
-	public Date rentDate;
-	public Date returnDate;
+	public int memberUID;
+	public Timestamp rentDate;
+	public Timestamp returnDate;
+	public int rentNo;
+	
 	public int getBookNo() {
 		return bookNo;
 	}
 	public void setBookNo(int bookNo) {
 		this.bookNo = bookNo;
 	}
-	public int getUserUID() {
-		return userUID;
+	public int getMemberUID() {
+		return memberUID;
 	}
-	public void setUserUID(int userUID) {
-		this.userUID = userUID;
+	public void setMemberUID(int memberUID) {
+		this.memberUID = memberUID;
 	}
-	public Date getRentDate() {
+	public Timestamp getRentDate() {
 		return rentDate;
 	}
-	public void setRentDate(Date rentDate) {
+	public void setRentDate(Timestamp rentDate) {
 		this.rentDate = rentDate;
 	}
-	public Date getReturnDate() {
+	public Timestamp getReturnDate() {
 		return returnDate;
 	}
-	public void setReturnDate(Date returnDate) {
+	public void setReturnDate(Timestamp returnDate) {
 		this.returnDate = returnDate;
 	}
-	
+	public int getRentNo() {
+		return rentNo;
+	}
+	public void setRentNo(int rentNo) {
+		this.rentNo = rentNo;
+	}
 	
 }

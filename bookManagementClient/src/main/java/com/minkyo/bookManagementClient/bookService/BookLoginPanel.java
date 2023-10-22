@@ -35,7 +35,7 @@ import SockNet.NetClient;
 public class BookLoginPanel extends EventPanel {
 	private JButton loginBtn = new JButton("로그인");
 	private JButton joinBtn = new JButton("회원가입");
-	private JLabel titleLabel = new JLabel("예담 도서관리 프로그램");
+	private JLabel titleLabel = new JLabel("도서관리 프로그램");
 	private JLabel idLabel = new JLabel("아이디");
 	private JLabel pwLabel = new JLabel("패스워드");
 	private JTextField idTextField = new JTextField(20);
@@ -52,7 +52,7 @@ public class BookLoginPanel extends EventPanel {
 		loginBtn.setBounds(320,530, 130, 80);
 		joinBtn.setBounds(600,530, 130, 80);
 		
-		titleLabel.setBounds(200,60,800,100);
+		titleLabel.setBounds(260,60,800,100);
 		titleLabel.setFont(new Font("Serif", Font.PLAIN, 60));
 		
 		idLabel.setBounds(300, 260, 200, 50);

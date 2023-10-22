@@ -1,19 +1,20 @@
 package com.minkyo.bookManagementClient.bookMain;
 
 import java.awt.Image;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.minkyo.bookManagementClient.bookService.BookHistoryPanel;
 import com.minkyo.bookManagementClient.bookService.BookJoinPanel;
 import com.minkyo.bookManagementClient.bookService.BookListPanel;
 import com.minkyo.bookManagementClient.bookService.BookLoginPanel;
 import com.minkyo.bookManagementClient.bookService.BookMainPanel;
-import com.minkyo.bookManagementClient.bookService.BookRequestBoardPanel;
 import com.minkyo.bookManagementClient.bookService.EventPanel;
 import com.minkyo.bookManagementPacket.Member.MemberVO;
 
@@ -23,6 +24,7 @@ public class BookManagementMainFrame extends JFrame {
 	public static final int SCREEN_WIDTH = 1024;
 	public static final int SCREEN_HEIGHT = 768;
 	public static Image colorBackgroundImage = null;
+	public static Image whiteColorBackgroundImage = null;
 	
 	private static BookManagementMainFrame inst = null;
 	private NetClient net = new NetClient();
@@ -61,7 +63,13 @@ public class BookManagementMainFrame extends JFrame {
 		}
 		
 		colorBackgroundImage = Util.resize(
-				new ImageIcon(Util.getImageFile("defaultBackgroundColor.jpg")), 
+				new ImageIcon(Util.getImageFile("background3.jpg")), 
+				BookManagementMainFrame.SCREEN_WIDTH,
+				BookManagementMainFrame.SCREEN_HEIGHT
+		).getImage();
+		
+		whiteColorBackgroundImage = Util.resize(
+				new ImageIcon(Util.getImageFile("mainWhiteColor.jpg")), 
 				BookManagementMainFrame.SCREEN_WIDTH,
 				BookManagementMainFrame.SCREEN_HEIGHT
 		).getImage();
@@ -70,6 +78,18 @@ public class BookManagementMainFrame extends JFrame {
 		super.setIconImage(Util.resize(new ImageIcon(Util.getImageFile("bookIcon.jpg")), 100, 100).getImage());
 		
 		panelInit();
+		
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					net.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		
 		super.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
 		super.setResizable(false);
@@ -93,8 +113,8 @@ public class BookManagementMainFrame extends JFrame {
 			case MainPanel:
 				changePanel = new BookMainPanel(panelType);
 				break;
-			case BookRequestBoardPanel:
-				changePanel = new BookRequestBoardPanel(panelType);
+			case BookHistoryPanel:
+				changePanel = new BookHistoryPanel(panelType);
 				break;
 			case BookListPanel:
 				changePanel = new BookListPanel(panelType);

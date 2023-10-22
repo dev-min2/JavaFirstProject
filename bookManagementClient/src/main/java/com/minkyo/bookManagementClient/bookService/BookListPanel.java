@@ -142,7 +142,6 @@ public class BookListPanel extends EventPanel {
 
 	private void setButtonListener() {
 		ActionListener backBtnAction = (ActionEvent e) -> {
-			// 로그인 가능한지 패킷 송신
 			BookManagementMainFrame.getInstance().changePanel(BookPanelType.MainPanel);
 		};
 		
@@ -472,9 +471,6 @@ public class BookListPanel extends EventPanel {
 			this.remove(selectedBookInfo.getBookAuthor());
 			this.remove(selectedBookInfo.getBookImg());
 			this.remove(selectedBookInfo.getBookPublisher());
-//			this.remove(selectedBookInfo.getHistoryTable());
-//			this.remove(selectedBookInfo.getHistoryNextBtn());
-//			this.remove(selectedBookInfo.getHistoryPrevBtn());
 		}
 		
 		BookInfo newBook = new BookInfo();
@@ -584,7 +580,7 @@ public class BookListPanel extends EventPanel {
 		this.add(newBook.getBookTitle());
 		this.add(newBook.getBookAuthor());
 		this.add(newBook.getBookPublisher());
-//		
+
 		this.setComponentZOrder(newBook.getBookImg(), 5);
 		this.setComponentZOrder(newBook.getBookTitle(), 5);
 		this.setComponentZOrder(newBook.getBookAuthor(), 5);
@@ -592,57 +588,7 @@ public class BookListPanel extends EventPanel {
 		
 		BookManagementMainFrame.getInstance().repaint();
 		this.repaint();
-		//bookBackground.setVisible(true);
-		
-		//bookBackground.setVisible(true);
-//		
-//		String[] header = {"이름","대여날짜","반납날짜"};
-//		String[][] contents = { 
-//				{"전민교","22/04/04","22/04/10"},
-//				{"전민교","22/04/04","22/04/10"},
-//				{"전민교","22/04/04","22/04/10"},
-//				{"전민교","22/04/04","22/04/10"},
-//				{"전민교","22/04/04","22/04/10"},
-//				{"전민교","22/04/04","22/04/10"},
-//		};
-//		
-//		bookInfo.setHistoryTable(new JTable(contents, header));
-//		
-//		JTable historyTable = bookInfo.getHistoryTable();
-//		historyTable.setBounds(750,510, 200, 100);
-//		historyTable.getTableHeader().setBounds(750, 480, 200, 30);
-//		historyTable.getTableHeader().setFont(new Font("Serif",Font.BOLD, 12));
-//		historyTable.getTableHeader().setReorderingAllowed(false);
-//		historyTable.getTableHeader().setResizingAllowed(false);
-//		
-//		JButton bookHistoryPrevBtn = bookInfo.getHistoryPrevBtn();
-//		JButton bookHistoryNextBtn = bookInfo.getHistoryNextBtn();
-//		bookHistoryPrevBtn.setBounds(750,610,40,35);
-//		bookHistoryPrevBtn.setFont(new Font("Serif",Font.BOLD, 7));
-//		bookHistoryNextBtn.setBounds(910,610,40,35);
-//		bookHistoryNextBtn.setFont(new Font("Serif",Font.BOLD, 7));
-//
-//		add(historyTable.getTableHeader());
-//		add(bookInfo.getBookImg());
-//		add(bookInfo.getBookTitle());
-//		add(bookInfo.getBookPublisher());
-//		add(bookInfo.getBookAuthor());
-//		add(bookInfo.getBookIntroduce());
-//		add(historyTable);
-//		add(bookHistoryPrevBtn);
-//		add(bookHistoryNextBtn);
-//		this.setComponentZOrder(bookHistoryPrevBtn, 1);
-//		this.setComponentZOrder(bookHistoryNextBtn, 1);
-//
-//		// 이미지를 보이게하기 위해 order 앞으로 댕김
-//		this.setComponentZOrder(bookInfo.getBookImg(), 1);
-//		this.setComponentZOrder(bookInfo.getBookTitle(), 1);
-//		this.setComponentZOrder(bookInfo.getBookAuthor(), 1);
-//		this.setComponentZOrder(bookInfo.getBookPublisher(), 1);
-//		this.setComponentZOrder(bookInfo.getBookIntroduce(), 1);
-//		this.setComponentZOrder(historyTable, 4);
-//		this.setComponentZOrder(historyTable.getTableHeader(), 4);
-		
+
 		return newBook;
 	}
 	
@@ -682,6 +628,10 @@ public class BookListPanel extends EventPanel {
 			initRegistBookDialog();
 			bookRegistBtn.setVisible(true);
 		}
+		
+		curModelIndex = 0;
+		bookModelList.clear();
+		bookModelList.add(new DefaultListModel());
 		
 		NetClient net = BookManagementMainFrame.getInstance().getNetClient();
 		

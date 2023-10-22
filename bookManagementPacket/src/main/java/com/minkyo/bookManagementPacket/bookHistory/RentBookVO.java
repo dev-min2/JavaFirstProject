@@ -2,12 +2,13 @@ package com.minkyo.bookManagementPacket.bookHistory;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class RentBookVO implements Serializable {
 	private int rentNo;
 	private int memberUID;
 	private int bookNo;
-	private Date rentDate;
+	private Timestamp rentDate;
 	
 	public int getRentNo() {
 		return rentNo;
@@ -27,10 +28,10 @@ public class RentBookVO implements Serializable {
 	public void setBookNo(int bookNo) {
 		this.bookNo = bookNo;
 	}
-	public Date getRentDate() {
+	public Timestamp getRentDate() {
 		return rentDate;
 	}
-	public void setRentDate(Date rentDate) {
+	public void setRentDate(Timestamp rentDate) {
 		this.rentDate = rentDate;
 	}
 	

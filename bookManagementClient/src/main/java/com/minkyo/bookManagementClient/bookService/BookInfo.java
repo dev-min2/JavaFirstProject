@@ -21,20 +21,11 @@ public class BookInfo {
 	private JLabel bookTitle = null;
 	private JLabel bookAuthor = null;
 	private JLabel bookPublisher = null;
-	private JTable historyTable = null;
 	
-	private JButton bookHistoryPrevBtn = new JButton("◀");
-	private JButton bookHistoryNextBtn = new JButton("▶");
 	private Font font = new Font("Serif",Font.PLAIN, 16);
 	
 	public int getBookNo() { return bookNo; }
 	public void setBookNo(int bookNo) { this.bookNo = bookNo; }
-	public JTable getHistoryTable() { return historyTable; }
-	public void setHistoryTable(JTable table) { historyTable = table; }
-	public JButton getHistoryPrevBtn() { return bookHistoryPrevBtn; }
-	public void setHistoryPrevBtn(JButton btn) { bookHistoryPrevBtn = btn; }
-	public JButton getHistoryNextBtn() { return bookHistoryNextBtn; }
-	public void setHistoryNextBtn(JButton btn) { bookHistoryNextBtn = btn; }
 	public Font getFont() { return font; }
 	public JButton getBookImg() { return bookImg; }
 	public void setBookImg(JButton btn) { bookImg = btn; }

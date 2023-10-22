@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.sql.Date;
 import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 import java.util.zip.Deflater;
 
@@ -15,14 +16,20 @@ import com.minkyo.bookManagementPacket.NetError;
 import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_REQ;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.BOOK_HISTORY_RENT_ACK;
+import com.minkyo.bookManagementPacket.BookList.BOOK_HISTORY_RENT_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.MY_BOOK_HISTORY_RENT_ACK;
+import com.minkyo.bookManagementPacket.BookList.MY_BOOK_HISTORY_RENT_REQ;
 import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.SELECT_ALL_BOOK_DATA_REQ;
+import com.minkyo.bookManagementPacket.bookHistory.BookHistoryVO;
 import com.minkyo.bookManagementPacket.bookHistory.RentBookVO;
 import com.minkyo.bookManagementServer.dao.BookDAO;
 import com.minkyo.bookManagementServer.dao.BookDAOImpl;
 
+import CommonUtils.TripleTuple;
 import CommonUtils.Utils;
 
 public class BookServiceImpl implements BookService {
@@ -113,7 +120,7 @@ public class BookServiceImpl implements BookService {
 		if(ret.getValue() != null) {
 			ackPacket.canRentBook = false;
 			ackPacket.rentMemberUID = ret.getValue().getMemberUID();
-			ackPacket.rentNo = ret.getValue().getBookNo();
+			ackPacket.rentNo = ret.getValue().getRentNo();
 		}
 		else {
 			ackPacket.canRentBook = true;
@@ -146,5 +153,31 @@ public class BookServiceImpl implements BookService {
 		// TODO Auto-generated method stub
 	
 		return dao.deleteRentBook(packet.rentNo);
+	}
+
+	@Override
+	public boolean getMyRentAndBookHistory(MY_BOOK_HISTORY_RENT_REQ packet, MY_BOOK_HISTORY_RENT_ACK ackPacket) {
+		// TODO Auto-generated method stub
+		TripleTuple<String,List<String>,List<BookHistoryVO>> tupleVO = dao.selectMemberBookHistory(packet.memberUID);
+		
+		ackPacket.nickName = tupleVO.getFirstObj();
+		ackPacket.bookTitleList = tupleVO.getSecondObj();
+		ackPacket.historyVOList = tupleVO.getThirdObj();
+		
+		return true;
+	}
+
+	@Override
+	public boolean getBookRentAndHistory(BOOK_HISTORY_RENT_REQ packet, BOOK_HISTORY_RENT_ACK ackPacket) {
+		// TODO Auto-generated method stub
+		
+		TripleTuple<List<BookHistoryVO>, List<BookVO>, List<String>> result = dao.selectBookRentAndHistory(packet.bookNo);
+		if(result == null)
+			return false;
+		
+		ackPacket.historyVOList = result.getFirstObj();
+		ackPacket.bookVOList = result.getSecondObj();
+		ackPacket.memberNicknameList = result.getThirdObj();		
+		return true;
 	}
 }

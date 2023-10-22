@@ -7,7 +7,11 @@ import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADDITIONAL_BOOK_INFO_REQ;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_ACK;
 import com.minkyo.bookManagementPacket.BookList.ADMIN_REGIST_BOOK_REQ;
+import com.minkyo.bookManagementPacket.BookList.BOOK_HISTORY_RENT_ACK;
+import com.minkyo.bookManagementPacket.BookList.BOOK_HISTORY_RENT_REQ;
 import com.minkyo.bookManagementPacket.BookList.BookVO;
+import com.minkyo.bookManagementPacket.BookList.MY_BOOK_HISTORY_RENT_ACK;
+import com.minkyo.bookManagementPacket.BookList.MY_BOOK_HISTORY_RENT_REQ;
 import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_ACK;
 import com.minkyo.bookManagementPacket.BookList.RENT_BOOK_REQ;
 import com.minkyo.bookManagementPacket.BookList.RETURN_BOOK_ACK;
@@ -105,6 +109,38 @@ public class BookController {
 		if(bookService.returnBook(reqPacket)) {
 			ackPacket.netError = NetError.NET_OK;
 		}
+		return ackPacket;
+	}
+	
+	@RequestMapping("MY_BOOK_HISTORY_RENT_REQ")
+	public Packet requestMemberBookRentHistory(Packet requestPacket, MessageInfo msgInfo) {
+		MY_BOOK_HISTORY_RENT_REQ reqPacket = (MY_BOOK_HISTORY_RENT_REQ)requestPacket;
+		MY_BOOK_HISTORY_RENT_ACK ackPacket = new MY_BOOK_HISTORY_RENT_ACK();
+		ackPacket.netError = NetError.NET_FAIL;
+		
+		if(msgInfo.getParameter("login") == null)
+			return ackPacket;
+		
+		if(bookService.getMyRentAndBookHistory(reqPacket,ackPacket)) {
+			ackPacket.netError = NetError.NET_OK;
+		}
+		
+		return ackPacket;
+	}
+	
+	@RequestMapping("BOOK_HISTORY_RENT_REQ")
+	public Packet requestBookRentHistory(Packet requestPacket, MessageInfo msgInfo) {
+		BOOK_HISTORY_RENT_REQ reqPacket = (BOOK_HISTORY_RENT_REQ)requestPacket;
+		BOOK_HISTORY_RENT_ACK ackPacket = new BOOK_HISTORY_RENT_ACK();
+		ackPacket.netError = NetError.NET_FAIL;
+		
+		if(msgInfo.getParameter("login") == null)
+			return ackPacket;
+		
+		if(bookService.getBookRentAndHistory(reqPacket,ackPacket)) {
+			ackPacket.netError = NetError.NET_OK;
+		}
+		
 		return ackPacket;
 	}
 }
