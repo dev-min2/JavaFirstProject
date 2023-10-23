@@ -6,10 +6,8 @@ import SockNet.NetServer;
  * Hello world!
  *
  */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
+public class App {
+    public static void main( String[] args ) throws Exception {
         NetServer s = new NetServer(9999);
         
         try {
@@ -18,6 +16,5 @@ public class App
         catch(Exception e) {
         	e.printStackTrace();
         }
-
     }
 }

@@ -11,6 +11,9 @@ import com.minkyo.bookManagementClient.bookMain.BookManagementMainFrame;
  */
 public class App {
     public static void main( String[] args ) throws Exception {
+    	
+    	
+    	
     	BookManagementMainFrame.getInstance().init();
     }
 }
