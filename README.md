@@ -8,7 +8,7 @@
  - 해당 프레임워크를 이용한 첫 프로젝트(도서관리 프로그램) 개발 기간 (23.10.18 ~ 23.10.22)
 
 사용 기술
- - Java(8 람다,스트림,함수형 인터페이스), git, FTP(배포, FileZilla), Oracle & JDBC
+ - Java(8↑ 람다,스트림,함수형 인터페이스), git, FTP(배포, FileZilla), Oracle & JDBC
 
 # 프로젝트 서버 프레임워크 기능 구현
  - IoC/DI 구현
@@ -81,9 +81,47 @@ https://github.com/dev-min2/JavaFirstProject/blob/96a2c2dfa6cd1f3251fade9c8f49cf
   구현 클래스
   > javaSvr/src
   >> CommonUtils
-  >>> DBConnectionPool.java  
+  >>> DBConnectionPool.java
 
-#컨텐츠 구현
+
+
+# 도서관리 프로그램 콘텐츠 구현
+ - 회원가입 (중복아이디 체크, 비밀번호 단반향 암호화 해시 알고리즘인 SHA-256으로 암호화하여 저장)
+
+   
+   ![이미지](img/회원가입.png)
+
+   ![이미지](img/암호화.png)
+
+
+ - 현재 이용자 도서 대여기록 조회
+
+   
+   ![이미지](img/현재이용자대여기록조회.png)
+
+ - 도서 대여
+
+   
+   ![이미지](img/이미지버퍼크기.png)
+
+   해당 도서 클릭 시 도서 이미지를 서버에 1회 요청이후 클라이언트 로컬 폴더에 해당 도서 이미지 저장
+
+   자바 객체 직렬화 API가 직렬화 후, Byte Array 크기를 너무 많이 잡아서 다른 직렬화 라이브러리를 이용하는 방향이 좋아보임.
+
+
+   ![이미지](img/로컬이미지저장.png)
+
+
+ - 도서 전체 이용자 대여기록
+   ![이미지](img/도서전체이용자대여기록.png)
+
+   
+   
+   
+
+
+
+
 
   
 
