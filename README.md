@@ -27,7 +27,7 @@ https://github.com/dev-min2/JavaFirstProject/blob/96a2c2dfa6cd1f3251fade9c8f49cf
 
    **현재는 생성자를 통한 의존성 주입만 구현이 되어있음.**
  - Spring MVC 동작구조 구현
-   
+   ![MVC 예시 이미지](./img/프레임워크 MVC동작구조.png)
    
    구현 클래스
    > javaSvr/src
