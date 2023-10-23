@@ -11,20 +11,36 @@
  - Java(8 람다,스트림,함수형 인터페이스), git, FTP(배포, FileZilla), Oracle & JDBC
 
 # 프로젝트 기능 구현
- - IoC/DI
+ - IoC/DI 구현
 https://github.com/dev-min2/JavaFirstProject/blob/96a2c2dfa6cd1f3251fade9c8f49cf2d83189f45/bookManagementServer/src/main/resources/bean.xml#L1-L23
    *(실제 프로젝트에 사용한 bean 등록 xml)*
 
    bean.xml에 등록된 bean들을 Bean컨테이너를 통해 생성 및 관리
+
+
+   구현 클래스
    > javaSvr/src
    >> CoreActive
    >>> ApplicationBeanLoader.java
    >>> 
    >>> BeanContainer.java
 
-   현재는 생성자를 통한 의존성 주입만 구현이 되어있음.
- - Spring MVC 동작구조
+   **현재는 생성자를 통한 의존성 주입만 구현이 되어있음.**
+ - Spring MVC 동작구조 구현
    
+   
+   구현 클래스
+   > javaSvr/src
+   >> CoreActive
+   >>> DispatcherBot.java
+   >>> 
+   >>> HandlerMapping.java
+   >>> 
+   >>> HandlerAdapter.java
+   >>> 
+   >>> RequestMapping.java
+   >>> 
+   >>> Controller.java
    
 - 패킷 클래스(객체 직렬화)
   
