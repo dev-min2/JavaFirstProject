@@ -37,6 +37,11 @@ https://github.com/dev-min2/JavaFirstProject/blob/96a2c2dfa6cd1f3251fade9c8f49cf
 
    (멀티쓰레드 환경이기에 저장되는 컬렉션에 접근할 때 경합을 피하기위해 Lock을 이용)
 
+
+
+   **비즈니스 로직 구현 예시(컨트롤러 부분)**
+   https://github.com/dev-min2/JavaFirstProject/blob/e2012145d558f0df15fdd030617f521ed7fd0bd0/bookManagementServer/src/main/java/com/minkyo/bookManagementServer/controller/BookController.java#L53-L69
+
    구현 클래스
    > javaSvr/src
    >> CoreActive
