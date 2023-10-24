@@ -116,7 +116,7 @@ https://github.com/dev-min2/JavaFirstProject/blob/96a2c2dfa6cd1f3251fade9c8f49cf
    ![이미지](img/도서전체이용자대여기록.png)
 
    
-# 배포(FTP, 파일질라)
+# 서버 배포(FTP, 파일질라)
    ![이미지](img/배포_FTP(파일질라).png)
 
    외부에서 작업한 결과물을 jar파일로 Export한 후, 개인 PC의 디렉터리를 FTP로 연결해 jar파일 배포.
