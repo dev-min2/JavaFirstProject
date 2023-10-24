@@ -1,8 +1,8 @@
-# Async Socket Server similar to Spring Project
+# 프로젝트 개요
+**Async Socket Server similar to Spring Project**
 - Java의 NIO(AsynchronousServerSocketChannel)를 이용한 멀티 쓰레드 비동기 소켓 서버 라이브러리 및 프레임워크 구축
 - Spring 프레임워크의 주요 개념을 참고하여 IoC/DI(Bean주입), Spring MVC 동작구조, Session, DB ConnectionPool, RequestMapping, Controller등의 어노테이션을 직접 구현
 
-# 프로젝트 개요
 프로젝트 기간 
  - 서버 라이브러리 & 프레임워크 구축 (23.10.09 ~ 23.10.15)
  - 해당 프레임워크를 이용한 첫 프로젝트(도서관리 프로그램) 개발 기간 (23.10.18 ~ 23.10.22)
